@@ -1,0 +1,132 @@
+{
+ "meta": {
+  "demo": true,
+  "note": "DEMO DATA for offline testing. Village/PIN pairs are approximate and must be replaced with the real India Post directory: python scripts/build_keyterms.py <csv> --district Tumakuru"
+ },
+ "pins": {
+  "572101": {
+   "villages": [
+    "Tumkur",
+    "Batawadi",
+    "Maralur",
+    "Sira Gate"
+   ],
+   "taluk": "Tumakuru",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572102": {
+   "villages": [
+    "Kesaramadu",
+    "Antharasanahalli",
+    "Gulur"
+   ],
+   "taluk": "Tumakuru",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572104": {
+   "villages": [
+    "Kyathsandra",
+    "Siddaganga Math",
+    "Bandepalya",
+    "Devarayapattana"
+   ],
+   "taluk": "Tumakuru",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572107": {
+   "villages": [
+    "Bellavi",
+    "Kora",
+    "Hosahalli"
+   ],
+   "taluk": "Tumakuru",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572140": {
+   "villages": [
+    "Urdigere",
+    "Hirehalli",
+    "Nidavalalu"
+   ],
+   "taluk": "Tumakuru",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572120": {
+   "villages": [
+    "Hebbur",
+    "Nagavalli",
+    "Kalasandra"
+   ],
+   "taluk": "Tumakuru",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572216": {
+   "villages": [
+    "Gubbi",
+    "Nittur",
+    "Hagalavadi",
+    "Kadaba"
+   ],
+   "taluk": "Gubbi",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572130": {
+   "villages": [
+    "Kunigal",
+    "Yediyur",
+    "Huliyurdurga"
+   ],
+   "taluk": "Kunigal",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "572201": {
+   "villages": [
+    "Tiptur",
+    "Honnavalli",
+    "Kibbanahalli"
+   ],
+   "taluk": "Tiptur",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  },
+  "561202": {
+   "villages": [
+    "Pavagada",
+    "Nagalamadike",
+    "Venkatapura",
+    "Y N Hosakote"
+   ],
+   "taluk": "Pavagada",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": null,
+   "lon": null
+  }
+ }
+}

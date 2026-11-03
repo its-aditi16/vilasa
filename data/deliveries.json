@@ -1,0 +1,107 @@
+{
+ "note": "Synthetic data only. Names are invented; phone numbers are masked placeholders.",
+ "deliveries": [
+  {
+   "id": "VIL-1001",
+   "customer": "Lakshmamma",
+   "phone": "+91 9XXXX XX101",
+   "item": "Pressure cooker (3 L)",
+   "pin": "572101",
+   "typed_address": "near temple, kyatsandra, tumkur",
+   "failure": "Rider could not find the house; wrong PIN",
+   "attempts": 2,
+   "default_language": "kn-IN",
+   "mock_answers": {
+    "village": "ನಮ್ಮೂರು ಕ್ಯಾತಸಂದ್ರ",
+    "landmark": "ಆಂಜನೇಯ ಗುಡಿ ಹಿಂದೆ",
+    "house": "ಮನೆ ನಂಬರ್ ೨೩, ನೀಲಿ ಮನೆ",
+    "confirm": "ಹೌದು ಸರಿ"
+   }
+  },
+  {
+   "id": "VIL-1002",
+   "customer": "Ramesh Kumar",
+   "phone": "+91 9XXXX XX102",
+   "item": "Phone charger",
+   "pin": "572140",
+   "typed_address": "Hirehali village",
+   "failure": "Customer unreachable; landmark missing",
+   "attempts": 1,
+   "default_language": "kn-IN",
+   "mock_answers": {
+    "village": "मैं हिरेहल्ली में रहता हूँ",
+    "landmark": "सरकारी स्कूल के सामने",
+    "house": "घर नंबर 7, पीला घर",
+    "confirm": "हाँ सही है"
+   }
+  },
+  {
+   "id": "VIL-1003",
+   "customer": "Manjunath",
+   "phone": "+91 9XXXX XX103",
+   "item": "School bag",
+   "pin": "572107",
+   "typed_address": "Belavi",
+   "failure": "Address incomplete",
+   "attempts": 2,
+   "default_language": "kn-IN",
+   "mock_answers": {
+    "village": "Bellavi madam",
+    "landmark": "bus stand hatra, Ganesha temple pakka",
+    "house": "number illa, green house",
+    "confirm": "howdu"
+   }
+  },
+  {
+   "id": "VIL-1004",
+   "customer": "Priya S",
+   "phone": "+91 9XXXX XX104",
+   "item": "Kurta set",
+   "pin": "572216",
+   "typed_address": "Nitur, Gubbi tq",
+   "failure": "Rider could not find the house",
+   "attempts": 1,
+   "default_language": "kn-IN",
+   "mock_answers": {
+    "village": "I live in Nittur",
+    "landmark": "opposite the milk dairy",
+    "house": "house number 14 B",
+    "confirm": "yes correct"
+   }
+  },
+  {
+   "id": "VIL-1005",
+   "customer": "Narasimhulu",
+   "phone": "+91 9XXXX XX105",
+   "item": "Torch light",
+   "pin": "561202",
+   "typed_address": "nagalamadke pavagada",
+   "failure": "Address not found",
+   "attempts": 2,
+   "default_language": "te-IN",
+   "mock_answers": {
+    "village": "మా ఊరు నాగలమడికె",
+    "landmark": "చెరువు దగ్గర",
+    "house": "ఇంటి నంబర్ 5, తెల్ల ఇల్లు",
+    "confirm": "అవును సరే"
+   }
+  },
+  {
+   "id": "VIL-1006",
+   "customer": "Selvi",
+   "phone": "+91 9XXXX XX106",
+   "item": "Mixer jar",
+   "pin": "572140",
+   "typed_address": "urdigere",
+   "failure": "Landmark missing",
+   "attempts": 1,
+   "default_language": "kn-IN",
+   "mock_answers": {
+    "village": "ஊர்டிகெரே",
+    "landmark": "கோவில் எதிரே",
+    "house": "வீட்டு நம்பர் 9, வெள்ளை வீடு",
+    "confirm": "ஆமா சரி"
+   }
+  }
+ ]
+}

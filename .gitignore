@@ -1,0 +1,27 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Caches and generated audio
+.cache/
+benchmark/audio/
+benchmark/variants/
+benchmark/results/
+samples/*.wav
+samples/*.m4a
+samples/*.mp3
+!samples/README.md
+
+# Raw India Post directory (large; download yourself)
+data/raw/
+
+.DS_Store
+Thumbs.db

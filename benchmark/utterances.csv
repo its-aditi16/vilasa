@@ -1,0 +1,41 @@
+id,lang,tts_language,voice,text,pin,village,landmark_kind,relation,house_number
+u001,kn-IN,kn-IN,Avinash,ನಮ್ಮೂರು ಕದಬ. ಬಸ್ ನಿಲ್ದಾಣ ಹಿಂದೆ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 73.,572216,Kadaba,bus stand,behind,73
+u002,kn-IN,kn-IN,Lakshmi,ನಮ್ಮೂರು ಉರ್ದಿಗೆರೆ. ಬಸ್ ನಿಲ್ದಾಣ ಹತ್ತಿರ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 105.,572140,Urdigere,bus stand,near,105
+u003,kn-IN,kn-IN,Prakash,ನಮ್ಮೂರು ಹಿರೆಹಳ್ಳಿ. ನೀರಿನ ಟ್ಯಾಂಕ್ ಹತ್ತಿರ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 3.,572140,Hirehalli,water tank,near,3
+u004,kn-IN,kn-IN,Kalpana,ನಮ್ಮೂರು ಕಲಸನ್ದ್ರ. ಕೆರೆ ಎದುರು ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 37.,572120,Kalasandra,lake,opposite,37
+u005,kn-IN,kn-IN,Devansh,ನಮ್ಮೂರು ಬತವದಿ. ಸರ್ಕಾರಿ ಶಾಲೆ ಎದುರು ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 65.,572101,Batawadi,school,opposite,65
+u006,kn-IN,kn-IN,Shivani,ನಮ್ಮೂರು ಬನ್ದೆಪಾಳ್ಯ. ಹಾಲಿನ ಡೈರಿ ಎದುರು ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 162.,572104,Bandepalya,milk dairy,opposite,162
+u007,kn-IN,kn-IN,Harshad,ನಮ್ಮೂರು ಕಿಬ್ಬನಹಳ್ಳಿ. ಬಸ್ ನಿಲ್ದಾಣ ಎದುರು ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 161.,572201,Kibbanahalli,bus stand,opposite,161
+u008,kn-IN,kn-IN,Chetana,ನಮ್ಮೂರು ಉರ್ದಿಗೆರೆ. ಕೆರೆ ಹಿಂದೆ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 67.,572140,Urdigere,lake,behind,67
+u009,kn-IN,kn-IN,Avinash,ನಮ್ಮೂರು ಅನ್ತರಸನಹಳ್ಳಿ. ಕೆರೆ ಹಿಂದೆ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 109.,572102,Antharasanahalli,lake,behind,109
+u010,kn-IN,kn-IN,Lakshmi,ನಮ್ಮೂರು ನಗವಲ್ಲಿ. ಹಾಲಿನ ಡೈರಿ ಹತ್ತಿರ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 73.,572120,Nagavalli,milk dairy,near,73
+u011,kn-IN,kn-IN,Prakash,ನಮ್ಮೂರು ತುಮ್ಕುರ್. ಹಾಲಿನ ಡೈರಿ ಹಿಂದೆ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 61.,572101,Tumkur,milk dairy,behind,61
+u012,kn-IN,kn-IN,Kalpana,ನಮ್ಮೂರು ಬನ್ದೆಪಾಳ್ಯ. ಕೆರೆ ಹಿಂದೆ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 82.,572104,Bandepalya,lake,behind,82
+u013,kn-IN,kn-IN,Devansh,ನಮ್ಮೂರು ಕಿಬ್ಬನಹಳ್ಳಿ. ಮಾರಮ್ಮ ಗುಡಿ ಹತ್ತಿರ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 180.,572201,Kibbanahalli,temple,near,180
+u014,kn-IN,kn-IN,Shivani,ನಮ್ಮೂರು ತುಮ್ಕುರ್. ಬಸ್ ನಿಲ್ದಾಣ ಹಿಂದೆ ನಮ್ಮ ಮನೆ. ಮನೆ ನಂಬರ್ 4.,572101,Tumkur,bus stand,behind,4
+u015,kn-en,auto,Harshad,"ನಮ್ಮೂರು ಕ್ಯತ್ಸನ್ದ್ರ, bus stand eduru. House number 21.",572104,Kyathsandra,bus stand,opposite,21
+u016,kn-en,auto,Chetana,"ನಮ್ಮೂರು ಬತವದಿ, government school eduru. House number 60.",572101,Batawadi,school,opposite,60
+u017,kn-en,auto,Avinash,"ನಮ್ಮೂರು ಕದಬ, Ganesha temple eduru. House number 12.",572216,Kadaba,temple,opposite,12
+u018,kn-en,auto,Lakshmi,"ನಮ್ಮೂರು ಗುಬ್ಬಿ, bus stand eduru. House number 172.",572216,Gubbi,bus stand,opposite,172
+u019,kn-en,auto,Prakash,"ನಮ್ಮೂರು ಉರ್ದಿಗೆರೆ, kere hatra. House number 182.",572140,Urdigere,lake,near,182
+u020,kn-en,auto,Kalpana,"ನಮ್ಮೂರು ಕ್ಯತ್ಸನ್ದ್ರ, government school hatra. House number 101.",572104,Kyathsandra,school,near,101
+u021,hi-IN,hi-IN,Devansh,मेरा गाँव क्यत्सन्द्र है। पानी की टंकी के सामने घर है। घर नंबर 13.,572104,Kyathsandra,water tank,opposite,13
+u022,hi-IN,hi-IN,Shivani,मेरा गाँव बन्देपाल्या है। पानी की टंकी के सामने घर है। घर नंबर 66.,572104,Bandepalya,water tank,opposite,66
+u023,hi-IN,hi-IN,Harshad,मेरा गाँव बेल्लवि है। डेयरी के पास घर है। घर नंबर 62.,572107,Bellavi,milk dairy,near,62
+u024,hi-IN,hi-IN,Chetana,मेरा गाँव क्यत्सन्द्र है। राम मंदिर के सामने घर है। घर नंबर 38.,572104,Kyathsandra,temple,opposite,38
+u025,hi-IN,hi-IN,Avinash,मेरा गाँव कुनिगल् है। बस स्टैंड के पास घर है। घर नंबर 104.,572130,Kunigal,bus stand,near,104
+u026,hi-IN,hi-IN,Lakshmi,मेरा गाँव किब्बनहल्ली है। बस स्टैंड के पीछे घर है। घर नंबर 10.,572201,Kibbanahalli,bus stand,behind,10
+u027,hi-IN,hi-IN,Prakash,मेरा गाँव बतवदि है। पानी की टंकी के पास घर है। घर नंबर 110.,572101,Batawadi,water tank,near,110
+u028,hi-IN,hi-IN,Kalpana,मेरा गाँव वेङ्कतपुर है। बस स्टैंड के पास घर है। घर नंबर 208.,561202,Venkatapura,bus stand,near,208
+u029,en-IN,en-IN,Devansh,My village is Kyathsandra. Opposite the bus stand. House number 28.,572104,Kyathsandra,bus stand,opposite,28
+u030,en-IN,en-IN,Shivani,My village is Kyathsandra. Behind the bus stand. House number 37.,572104,Kyathsandra,bus stand,behind,37
+u031,en-IN,en-IN,Harshad,My village is Hirehalli. Near the government school. House number 225.,572140,Hirehalli,school,near,225
+u032,en-IN,en-IN,Chetana,My village is Tiptur. Near the milk dairy. House number 102.,572201,Tiptur,milk dairy,near,102
+u033,en-IN,en-IN,Avinash,My village is Kadaba. Behind the water tank. House number 212.,572216,Kadaba,water tank,behind,212
+u034,en-IN,en-IN,Lakshmi,My village is Huliyurdurga. Opposite the government school. House number 110.,572130,Huliyurdurga,school,opposite,110
+u035,ta-IN,ta-IN,Prakash,என் ஊர் நகலமதிகெ. ஏரி எதிரே எங்க வீடு. வீட்டு நம்பர் 76.,561202,Nagalamadike,lake,opposite,76
+u036,ta-IN,ta-IN,Kalpana,என் ஊர் கெஸரமது. ஏரி எதிரே எங்க வீடு. வீட்டு நம்பர் 128.,572102,Kesaramadu,lake,opposite,128
+u037,ta-IN,ta-IN,Devansh,என் ஊர் பவகத. அரசு பள்ளிக்கூடம் எதிரே எங்க வீடு. வீட்டு நம்பர் 114.,561202,Pavagada,school,opposite,114
+u038,te-IN,te-IN,Shivani,మా ఊరు నగలమదికె. డెయిరీ దగ్గర మా ఇల్లు. ఇంటి నంబర్ 196.,561202,Nagalamadike,milk dairy,near,196
+u039,te-IN,te-IN,Harshad,మా ఊరు గుబ్బి. రామాలయం గుడి వెనక మా ఇల్లు. ఇంటి నంబర్ 21.,572216,Gubbi,temple,behind,21
+u040,te-IN,te-IN,Chetana,మా ఊరు సిర గతె. డెయిరీ వెనక మా ఇల్లు. ఇంటి నంబర్ 137.,572101,Sira Gate,milk dairy,behind,137

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vilasa — address fixer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anek+Latin:wght@400;500;600;700&family=Anek+Kannada:wght@400;500;600&family=Anek+Devanagari:wght@400;500;600&family=Anek+Tamil:wght@400;500;600&family=Anek+Telugu:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 3c-5.5 0-10 4.3-10 9.7C6 20 16 29 16 29s10-9 10-16.3C26 7.3 21.5 3 16 3z" fill="currentColor"/><path d="M11 13.5c1.6-2.6 3.2-2.6 5 0s3.4 2.6 5 0" stroke="var(--paper)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </span>
+      <div>
+        <h1>Vilasa <span class="kn">ವಿಳಾಸ</span></h1>
+        <p class="tag">Calls the customer, in their language, and turns “near the temple” into an address a rider can find.</p>
+      </div>
+    </div>
+    <div class="status" id="status">
+      <span class="pill" id="mode">…</span>
+      <span class="usage" id="usage"></span>
+    </div>
+  </header>
+
+  <div class="banner" id="demoBanner" hidden>
+    Demo PIN data loaded. Replace it with the India Post directory before benchmarking — see README.
+  </div>
+
+  <main class="grid">
+    <!-- Courier: failed deliveries -->
+    <section class="panel" aria-labelledby="h-queue">
+      <div class="panel-head">
+        <h2 id="h-queue">Failed deliveries</h2>
+        <span class="muted small">Tumakuru hub · today</span>
+      </div>
+      <ul class="queue" id="queue"></ul>
+    </section>
+
+    <!-- Customer call -->
+    <section class="panel phone" aria-labelledby="h-call">
+      <div class="panel-head">
+        <h2 id="h-call">Customer call</h2>
+        <span class="lang" id="lang" hidden></span>
+      </div>
+      <div class="empty" id="callEmpty">
+        <p>Pick a failed delivery and press <b>Call with Vilasa</b>.</p>
+        <p class="muted small">You play the customer. Speak in Kannada, Hindi, English, Tamil or Telugu — or mix them.</p>
+      </div>
+      <div class="call" id="call" hidden>
+        <ol class="steps" id="steps">
+          <li data-step="village">Village</li>
+          <li data-step="landmark">Landmark</li>
+          <li data-step="house">House</li>
+          <li data-step="confirm">Read-back</li>
+        </ol>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <div class="controls" id="controls">
+          <button class="mic" id="mic" type="button" aria-label="Hold to talk">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1A7 7 0 0 0 19 12h-2z" fill="currentColor"/></svg>
+            <span id="micLabel">Hold to talk</span>
+          </button>
+          <form class="typed" id="typed" autocomplete="off">
+            <input id="typedInput" placeholder="…or type what the customer says" aria-label="Customer answer">
+            <button type="submit" class="ghost">Send</button>
+          </form>
+          <button class="link" id="scripted" type="button">Use the scripted demo answer</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Address card -->
+    <section class="panel" aria-labelledby="h-card">
+      <div class="panel-head">
+        <h2 id="h-card">Address for the rider</h2>
+        <span class="state" id="cardState" hidden></span>
+      </div>
+      <div class="empty" id="cardEmpty"><p class="muted">The fixed address appears here as the customer answers.</p></div>
+      <div class="card" id="card" hidden>
+        <div class="before">
+          <div class="label">Before · typed at checkout</div>
+          <div class="typedaddr" id="cBefore"></div>
+          <div class="fail" id="cFail"></div>
+        </div>
+        <div class="after">
+          <div class="label">After · from the call</div>
+          <dl>
+            <div class="row" id="rVillage"><dt>Village</dt><dd><span id="cVillage">—</span> <span class="badge" id="cPin" hidden></span></dd></div>
+            <div class="row" id="rLandmark"><dt>Landmark</dt><dd id="cLandmark">—</dd></div>
+            <div class="row" id="rHouse"><dt>House</dt><dd id="cHouse">—</dd></div>
+            <div class="row"><dt>Language</dt><dd id="cLang">—</dd></div>
+          </dl>
+          <a class="maps" id="cMaps" target="_blank" rel="noopener" hidden>Open in Google Maps ↗</a>
+          <details class="words">
+            <summary>Customer’s own words</summary>
+            <ul id="cWords"></ul>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot muted small">
+    Speech by Gnani <b>Prisma v3.0</b> (speech-to-text) and <b>Timbre v3.0</b> (voice). All customers and orders here are synthetic.
+  </footer>
+
+  <script src="/static/recorder.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
