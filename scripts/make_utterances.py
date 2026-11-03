@@ -9,6 +9,7 @@ Kannada, Kanglish, Hindi, English, Tamil or Telugu. Ground truth is stored next 
 import argparse
 import csv
 import random
+import re
 
 import _path  # noqa: F401
 from vilasa.config import ROOT, settings
@@ -50,7 +51,8 @@ MIX = [("kn-IN", 14), ("kn-en", 6), ("hi-IN", 8), ("en-IN", 6), ("ta-IN", 3), ("
 def build(n: int, seed: int):
     rng = random.Random(seed)
     pins = PinDirectory.load(settings.pin_file)
-    pool = [(v, p) for p, info in pins.pins.items() for v in info.villages]
+    town_words = re.compile(r"\d|\.|extn|extension|campus|nagar|city|colony|road|bazar|fort|layout|tumakuru|mutt|math|bus|market|station|kendra", re.I)
+    pool = [(v, p) for p, info in sorted(pins.pins.items()) for v in info.villages if not town_words.search(v) and len(v) > 3]
     total = sum(c for _, c in MIX)
     rows, i = [], 0
     for lang, share in MIX:

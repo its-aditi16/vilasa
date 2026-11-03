@@ -26,6 +26,7 @@ _ENDINGS = {
 }
 
 _RULES = [  # English spelling → OPTITRANS
+    (r"(?<=[bcdfghjklmnpqrstvwxz])y(?=[bcdfghjklmnpqrstvwxz])", "ai"),  # Bhyra → Bhaira
     (r"aa", "A"), (r"ee", "I"), (r"ii", "I"), (r"oo", "U"), (r"uu", "U"),
     (r"w", "v"), (r"z", "j"), (r"f", "ph"), (r"q", "k"), (r"x", "kSh"),
     (r"th", "t"), (r"dh", "d"),

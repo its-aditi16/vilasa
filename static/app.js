@@ -134,7 +134,8 @@
     $("cBefore").textContent = `${c.before} · PIN ${c.pin_on_parcel}`;
     const d = document.querySelector(`#job-${CSS.escape(c.delivery_id)} .job-why`);
     $("cFail").textContent = d ? d.textContent : "";
-    setRow("rVillage", "cVillage", c.village ? `${c.village}${c.taluk ? ", " + c.taluk + " taluk" : ""}` : "");
+    const area = c.taluk ? `${c.taluk} taluk` : (c.district ? `${c.district} district` : "");
+    setRow("rVillage", "cVillage", c.village ? `${c.village}${area ? ", " + area : ""}` : "");
     const pin = $("cPin");
     if (c.pin_corrected) { pin.hidden = false; pin.className = "badge fix"; pin.textContent = `PIN ${c.pin_on_parcel} → ${c.pin_corrected}`; }
     else if (c.village && c.village_confident) { pin.hidden = false; pin.className = "badge"; pin.textContent = `matched ${Math.round(c.village_score)}%`; }

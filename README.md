@@ -55,16 +55,14 @@ This makes a Kannada clip and a Hindi clip with Timbre, transcribes both with Pr
 
 **4. Run live.** Restart `uvicorn`. The pill at the top now says **LIVE**. Hold the mic button (or the space bar) and speak.
 
-## Load the real India Post data
+## India Post data
 
-The repo ships with a small **demo** PIN file (`data/pincodes_tumakuru.json`; the village↔PIN pairs are approximate). Before you run the benchmark or record the demo, replace it with the official directory:
+`data/pincodes_tumakuru.json` is built from the official **All India Pincode Directory** (data.gov.in). It covers 60 PIN codes and 566 post-office/village names in Tumakuru district. The raw CSV is ~22 MB and git-ignored. To rebuild, or to add another district:
 
-1. Download **"All India Pincode Directory"** (CSV) from data.gov.in into `data/raw/`
-2. Build the file:
-   ```bash
-   python scripts/build_keyterms.py data/raw/<file>.csv --district TUMKUR --district TUMAKURU
-   ```
-3. Update the PINs in `data/deliveries.json` to match, then restart the app. The demo banner disappears.
+```bash
+# put the CSV from data.gov.in in data/raw/
+python scripts/build_keyterms.py data/raw/pincode_directory.csv --district TUMAKURU --district TUMKUR
+```
 
 ## Benchmark: does it get village names right on a bad line?
 

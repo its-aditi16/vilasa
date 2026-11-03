@@ -215,6 +215,7 @@ class CallSession:
             "pin_on_parcel": self.pin,
             "pin_corrected": matched_pin if matched_pin and matched_pin != self.pin else None,
             "taluk": pin_info.taluk if pin_info else None,
+            "district": pin_info.district if pin_info else None,
             "landmark": landmark_en,
             "house": house_en,
             "customer_words": [t.text for t in self.turns if t.role == "customer" and t.text],

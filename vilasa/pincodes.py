@@ -16,7 +16,7 @@ from pathlib import Path
 
 from .lexicon import landmark_keyterms
 
-_SUFFIX = re.compile(r"\s*\b(b\.?\s*o|s\.?\s*o|h\.?\s*o|g\.?\s*p\.?\s*o|bo|so|ho)\b\.?\s*$", re.I)
+_SUFFIX = re.compile(r"\s*\b(b\.\s*o|s\.\s*o|h\.\s*o|g\.\s*p\.\s*o)\b\.?|\s+\b(bo|so|ho|gpo)\b\.?\s*$", re.I)
 _PAREN = re.compile(r"\s*\(.*?\)\s*")
 
 
@@ -73,7 +73,7 @@ class PinDirectory:
                 name = clean_office_name(r.get("officename", ""))
                 if name and name not in info.villages:
                     info.villages.append(name)
-                info.taluk = info.taluk or (r.get("taluk") or r.get("divisionname", "")).title()
+                info.taluk = info.taluk or r.get("taluk", "").title()  # newer CSVs have no taluk column
                 for key, attr in (("latitude", "lat"), ("longitude", "lon")):
                     try:
                         val = float(r.get(key, ""))

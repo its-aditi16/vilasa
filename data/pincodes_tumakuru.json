@@ -1,132 +1,1118 @@
 {
  "meta": {
-  "demo": true,
-  "note": "DEMO DATA for offline testing. Village/PIN pairs are approximate and must be replaced with the real India Post directory: python scripts/build_keyterms.py <csv> --district Tumakuru"
+  "source": "pincode_directory.csv",
+  "districts": [
+   "tumakuru",
+   "tumkur"
+  ],
+  "states": []
  },
  "pins": {
-  "572101": {
+  "561202": {
    "villages": [
-    "Tumkur",
-    "Batawadi",
-    "Maralur",
-    "Sira Gate"
+    "Rangasamudra",
+    "Sasalakunte",
+    "Venkatapura",
+    "Kotagudda",
+    "Neelammanahalli",
+    "Rajavanthi",
+    "Soolanaikanahalli",
+    "Pavagada Fort",
+    "Budibetta",
+    "Dommathamari",
+    "Gowdatti",
+    "Kodamadagu",
+    "Pavagada",
+    "Byadanur",
+    "Gummaghatta",
+    "Naliganahalli",
+    "Ponnasamudra",
+    "Sailapura",
+    "Virupasamudra",
+    "Bommathanahalli",
+    "Gundlahalli",
+    "Kanivenahalli",
+    "Lingadahalli",
+    "Roppa"
    ],
-   "taluk": "Tumakuru",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 14.0981235,
+   "lon": 77.2798815
+  },
+  "572101": {
+   "villages": [
+    "Tumakuru City",
+    "Tumakuru",
+    "Western Extn"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 12.5824167,
+   "lon": 74.9339722
   },
   "572102": {
    "villages": [
-    "Kesaramadu",
-    "Antharasanahalli",
-    "Gulur"
+    "Someswarapuram",
+    "Settihalli",
+    "Jayanagar Extn Tumakuru",
+    "SIT Campus",
+    "S G Extn Tumakuru",
+    "Gandhinagar Tumakuru"
    ],
-   "taluk": "Tumakuru",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 12.5823333,
+   "lon": 74.3845
+  },
+  "572103": {
+   "villages": [
+    "Kuvempunagara",
+    "Tumakuru University Campus"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 12.9009444,
+   "lon": 74.0173056
   },
   "572104": {
    "villages": [
-    "Kyathsandra",
-    "Siddaganga Math",
-    "Bandepalya",
-    "Devarayapattana"
+    "Kattige Gollahalli",
+    "Haralur",
+    "Kesaramadu",
+    "Devarayapatna",
+    "Swandenahalli",
+    "Siddaganga Mutt",
+    "Kyathasandra",
+    "Belagumba",
+    "Mydala"
    ],
-   "taluk": "Tumakuru",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 13.315199,
+   "lon": 77.1457793
+  },
+  "572105": {
+   "villages": [
+    "Maralur",
+    "Melekote",
+    "SSIT Campus"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3168611,
+   "lon": 77.1086389
+  },
+  "572106": {
+   "villages": [
+    "Oorkere",
+    "Northren Extension",
+    "Beladhara",
+    "Dibbur",
+    "Arakere",
+    "Obalapura"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.4046775,
+   "lon": 77.0875324
   },
   "572107": {
    "villages": [
+    "Halanur",
+    "Mallasandra",
+    "M C Campus Tumakuru",
+    "Bugudanahalli",
+    "Doddanaravangala",
+    "Siddarthanagar",
     "Bellavi",
-    "Kora",
-    "Hosahalli"
+    "Channenahalli"
    ],
-   "taluk": "Tumakuru",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 13.3415704,
+   "lon": 77.039199
   },
-  "572140": {
+  "572111": {
    "villages": [
-    "Urdigere",
-    "Hirehalli",
-    "Nidavalalu"
+    "K.Honnamachanahalli",
+    "Markonahalli",
+    "Yadavanne",
+    "Paduvagere",
+    "Hosakere",
+    "Jinnagara",
+    "Sanaba",
+    "Bettahalli",
+    "Kadasettihalli",
+    "Amruthur",
+    "Halagere",
+    "Holalagunda",
+    "Keelara",
+    "Volagerepura"
    ],
-   "taluk": "Tumakuru",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 12.9215309,
+   "lon": 76.9326656
+  },
+  "572112": {
+   "villages": [
+    "Hanumanahalli",
+    "Sidadaragal",
+    "Dodderi",
+    "Kavanadala",
+    "Jakkenahalli",
+    "Karpenahalli",
+    "Badavanahalli",
+    "Chandragiri",
+    "Dabbeghatta",
+    "Hosahalli",
+    "Thimmalapura"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.5232472,
+   "lon": 77.1008168
+  },
+  "572113": {
+   "villages": [
+    "Chikkabanagere",
+    "Chirathahalli",
+    "Thadakalur",
+    "Handikunte",
+    "Badamaranahalli",
+    "Lakkenahalli",
+    "Ragalahalli",
+    "Baragur",
+    "Hulikunte"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.932556,
+   "lon": 76.9809328
+  },
+  "572114": {
+   "villages": [
+    "Kuppalu",
+    "Malagondanahalli",
+    "Kibbanahalli",
+    "Karadi",
+    "Rajathadripura",
+    "Beerasandra",
+    "Kondlighatta",
+    "Biligere"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3488554,
+   "lon": 76.6277148
+  },
+  "572115": {
+   "villages": [
+    "Hunsekatte",
+    "Ramalingapura",
+    "Yeradakatte",
+    "Ganadahunse",
+    "Bukkapatna"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.7210437,
+   "lon": 77.2351437
+  },
+  "572116": {
+   "villages": [
+    "Jangamarahalli",
+    "Shyamarayanapalya",
+    "Nyayadagunte",
+    "Arsikere",
+    "Gujjanadu",
+    "Kyathaganahalli",
+    "Mangalawada",
+    "Kothur",
+    "Mugadalabetta",
+    "Channakeshavapura",
+    "Kannamedi",
+    "Kilarlahalli",
+    "Kondethimmanahalli",
+    "Madde",
+    "Thimmalanayakanabetta"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 14.0537704,
+   "lon": 77.1696959
+  },
+  "572117": {
+   "villages": [
+    "Ankasandra",
+    "Bidare",
+    "Manchaladore",
+    "Talekoppa",
+    "Madenahalli",
+    "Sathenahalli",
+    "Bodathimmanahalli",
+    "Gowripura",
+    "Irakasandra",
+    "Kodiyala",
+    "C.Nandihalli",
+    "Anthapura",
+    "Anupanakunte",
+    "Chelur"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.1740128,
+   "lon": 76.9629555
+  },
+  "572118": {
+   "villages": [
+    "Makanahalli",
+    "Kambathanahalli",
+    "Gulur",
+    "Ariyur",
+    "Chikkasarangi",
+    "Nagavalli",
+    "Palasandra"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3060564,
+   "lon": 77.0877276
+  },
+  "572119": {
+   "villages": [
+    "Baragihalli",
+    "Baragur",
+    "Kengalapura",
+    "Mathighatta",
+    "Puradakatte",
+    "Soralamavu",
+    "Handanakere",
+    "Naduvanahalli",
+    "Chowlakatte",
+    "Doddayennegere",
+    "Niruvagal"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3424868,
+   "lon": 76.9825245
   },
   "572120": {
    "villages": [
+    "Dawoodsab Palya",
+    "Singonahally",
+    "Bhaktharahalli",
+    "Niduvalalu",
+    "Siravara",
+    "Taredakuppe",
+    "Kanakuppe",
     "Hebbur",
-    "Nagavalli",
-    "Kalasandra"
+    "Kembalalu"
    ],
-   "taluk": "Tumakuru",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 13.1878754,
+   "lon": 77.2145125
   },
-  "572216": {
+  "572121": {
    "villages": [
-    "Gubbi",
-    "Nittur",
-    "Hagalavadi",
-    "Kadaba"
+    "Chikkanahalli",
+    "Kodlahalli",
+    "Sompura",
+    "Thogarighatta",
+    "Kyashavara",
+    "Rampura",
+    "Arasapura",
+    "Bommaladevipura",
+    "Holavanahalli"
    ],
-   "taluk": "Gubbi",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 13.8524563,
+   "lon": 77.2556549
+  },
+  "572122": {
+   "villages": [
+    "Maskal",
+    "Honsigere",
+    "Sasalu",
+    "Tavarekere",
+    "Hullenahalli",
+    "Mulkunte",
+    "Naruganahalli",
+    "Honnudike"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.4788787,
+   "lon": 77.4554664
+  },
+  "572123": {
+   "villages": [
+    "Halevoor",
+    "P.Honnamachanahalli",
+    "R.Byadarahalli",
+    "Hosahalli",
+    "Kenchanahalli",
+    "Kodavathi",
+    "Yelekadakalu",
+    "Tavarekere",
+    "Huliyur Durga",
+    "Bandihalli",
+    "Nidasale",
+    "Chowdanakuppe",
+    "Ujjini"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.666208,
+   "lon": 76.6468338
+  },
+  "572124": {
+   "villages": [
+    "Garani",
+    "Bramhasamudra",
+    "Janakaloti",
+    "Yelkur",
+    "Thippapura",
+    "Thadi",
+    "Ittakadibbanahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.4454564,
+   "lon": 77.2555969
+  },
+  "572125": {
+   "villages": [
+    "Gopaladeverahalli",
+    "Halenahalli",
+    "Talagunda",
+    "Seebi Agrahara",
+    "Tarur",
+    "Halebijjanabella",
+    "Kallambella",
+    "Chikkanahalli",
+    "Bhupasandra",
+    "Vaddanahalli",
+    "Brahamasandra",
+    "Dodda Agrahara",
+    "Kataveeranahalli",
+    "Kuntegowdanahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.8184445,
+   "lon": 77.2566569
+  },
+  "572126": {
+   "villages": [
+    "Seenappanahalli",
+    "Bettahallimutt",
+    "Huthri",
+    "Ippadi",
+    "Yeliyur",
+    "Kempanahalli",
+    "Kathrighatta",
+    "Sondalagere",
+    "Yalagalawadi"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 12.9542532,
+   "lon": 77.1021455
+  },
+  "572127": {
+   "villages": [
+    "Chikkadalavatta",
+    "Kalidevapura",
+    "Shravandanahalli",
+    "Gundagal",
+    "Doddamalur",
+    "Parthihalli",
+    "Suddekunte",
+    "Mydanahalli",
+    "Singonahalli",
+    "Kadagathur",
+    "Teriyur",
+    "Kodigenahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.637627,
+   "lon": 76.9372253
+  },
+  "572128": {
+   "villages": [
+    "Brahmasandra",
+    "Haldodderi",
+    "Sorekunte",
+    "Kora",
+    "Chikkatotlukere",
+    "Nelahal",
+    "Hunjanal"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.4502582,
+   "lon": 77.0622783
+  },
+  "572129": {
+   "villages": [
+    "Bukkapatna",
+    "Theetha",
+    "Thumbadi",
+    "Vajjanakurke",
+    "Hanchihalli",
+    "Mallekavu",
+    "A.Venkatapura",
+    "Irakasandra",
+    "Pathaganahalli",
+    "Dasarahalli",
+    "Doddasaggere",
+    "Mavathur",
+    "Agrahara",
+    "Hulikunte",
+    "Vaddagere",
+    "Yelerampura",
+    "Koratagere"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.7210437,
+   "lon": 77.2351437
   },
   "572130": {
    "villages": [
+    "Arakere",
+    "Begur",
+    "Kithanagamangala",
+    "Honnenahalli",
+    "Kaggere",
+    "Madikehalli",
+    "Nadumavinapura",
+    "Tarikere",
+    "Bilidevalaya",
+    "Doddamavathur",
+    "Modur",
+    "K R S Agrahara Kunigal",
     "Kunigal",
-    "Yediyur",
-    "Huliyurdurga"
+    "Bidanagere",
+    "Gowdagere",
+    "Gunnagere",
+    "Herur",
+    "Kothagere",
+    "Santhmavathur"
    ],
-   "taluk": "Kunigal",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 13.3997315,
+   "lon": 77.1196009
+  },
+  "572132": {
+   "villages": [
+    "Neralekere",
+    "Rantavalalu",
+    "Madhugiri",
+    "Nitrahalli",
+    "P. W. D. Colony",
+    "R M Yard Madhugiri",
+    "Ganjalagunte",
+    "Kodagadala",
+    "Kotagarlahalli",
+    "Vaderahalli",
+    "Bijawara",
+    "Hosakere",
+    "Settihalli",
+    "Ranganahalli",
+    "Chinakavajra",
+    "Doddaveeragondanahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.6554478,
+   "lon": 77.2148435
+  },
+  "572133": {
+   "villages": [
+    "Bedathur",
+    "Lakshmipura",
+    "Reddihalli",
+    "Medigeshi",
+    "Chinnenahalli",
+    "Hanumanthapura",
+    "Kyathagondanahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.831262,
+   "lon": 77.1994572
+  },
+  "572134": {
+   "villages": [
+    "Jiddigere",
+    "Turuganur",
+    "Tuvekere",
+    "Nagasandra"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3826682,
+   "lon": 76.8497205
+  },
+  "572135": {
+   "villages": [
+    "Nadur",
+    "Vajarahalli",
+    "P N Halli",
+    "Bevinahalli",
+    "Yenjalagere",
+    "Chengavara",
+    "Dwaranakunte",
+    "Hemdore",
+    "Veeraganahalli",
+    "Yadaladaku"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 14.3337717,
+   "lon": 77.3966863
+  },
+  "572136": {
+   "villages": [
+    "Kyathaganakere",
+    "Bettadakelaginahalli",
+    "Nagalamadike",
+    "Tirumani",
+    "Yaguvapalli",
+    "Hussainpura",
+    "Rayacherlu",
+    "Vallur",
+    "Palavalli",
+    "Srirangapura"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 14.1581604,
+   "lon": 77.2936718
+  },
+  "572137": {
+   "villages": [
+    "Guligenehalli",
+    "Channanakunte",
+    "Honnagondanahalli",
+    "Huildore",
+    "Kadavigere",
+    "Kotta",
+    "Jyothinagara Sira",
+    "Sira",
+    "Bandakunte",
+    "Melkunte",
+    "Magodu",
+    "Mekerahalli",
+    "Rathnasandra",
+    "Thuppadakona",
+    "Yeliyur",
+    "Madalur",
+    "Syagadadu"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.695328,
+   "lon": 77.3159413
+  },
+  "572138": {
+   "villages": [
+    "Dasalakunte",
+    "Devalapura",
+    "Kabbigere",
+    "Tovinakere",
+    "Kestur",
+    "Kempanadodderi",
+    "Kuramkote",
+    "Negalala"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.8565589,
+   "lon": 76.7954958
+  },
+  "572139": {
+   "villages": [
+    "Gowdagere",
+    "Manangi",
+    "Tavarekere",
+    "Dyagerahalli",
+    "Hosur",
+    "Maddakkanahalli",
+    "Hunsehalli",
+    "Lakshmisagara"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.749294,
+   "lon": 76.8980855
+  },
+  "572140": {
+   "villages": [
+    "Aregujjanahalli",
+    "Thimmanayakanahalli",
+    "Byatha",
+    "Kolala",
+    "Hiredoddavadi",
+    "Yelachigere",
+    "Devarayanadurga",
+    "Seethakal",
+    "Durgadahalli",
+    "Urdigere",
+    "Anupanahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.5471293,
+   "lon": 77.0958585
+  },
+  "572141": {
+   "villages": [
+    "Chikkahalli",
+    "Jalodu",
+    "Pothaganahalli",
+    "Siddapura",
+    "Thippaiahnadurga",
+    "Maridasanahalli",
+    "Y N Hoskote"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 14.3797371,
+   "lon": 77.1744828
+  },
+  "572142": {
+   "villages": [
+    "Yediyur",
+    "Doddamadure",
+    "Koppa",
+    "Tippur"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3168611,
+   "lon": 77.1086389
+  },
+  "572168": {
+   "villages": [
+    "Hirehalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3168611,
+   "lon": 77.1086389
+  },
+  "572175": {
+   "villages": [
+    "Kondavadi",
+    "Chikkamalur",
+    "Badakanahalli",
+    "Byalya",
+    "Gondhihalli",
+    "Puravara",
+    "Doddahosahalli",
+    "Kodlapura"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.695328,
+   "lon": 77.3159413
   },
   "572201": {
    "villages": [
+    "Dasarighatta",
+    "Honnavalli Road",
+    "Tadasur",
     "Tiptur",
-    "Honnavalli",
-    "Kibbanahalli"
+    "Belagarahali",
+    "Halkurike",
+    "Kallegowdanapalya",
+    "Sarthavalli",
+    "Bhyranayakanahalli",
+    "Kalkere",
+    "Mathihalli",
+    "Gurugadahalli",
+    "Halepalya",
+    "Kotanayakanahalli",
+    "Madenur",
+    "Ramachandrapura",
+    "Rangapura",
+    "Echanur",
+    "K R Extn Tiptur"
    ],
-   "taluk": "Tiptur",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 12.9829466,
+   "lon": 76.8628964
   },
-  "561202": {
+  "572211": {
    "villages": [
-    "Pavagada",
-    "Nagalamadike",
-    "Venkatapura",
-    "Y N Hosakote"
+    "Hadavanahalli",
+    "Kondli",
+    "Vajrapura Colony",
+    "Ammasandra",
+    "Doddaguni",
+    "N.Hosahalli"
    ],
-   "taluk": "Pavagada",
+   "taluk": "",
    "district": "Tumakuru",
    "state": "Karnataka",
-   "lat": null,
-   "lon": null
+   "lat": 13.2752587,
+   "lon": 76.7169275
+  },
+  "572212": {
+   "villages": [
+    "Kunikenahalli",
+    "Neeragunda",
+    "Thoremavinahalli",
+    "Banasandra",
+    "Anekere",
+    "Aralaguppe"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2652937,
+   "lon": 76.6581485
+  },
+  "572213": {
+   "villages": [
+    "Idagur",
+    "S.Kodagehalli",
+    "Seegehalli",
+    "Thuilahalli",
+    "C.Kodagihalli",
+    "Hindiskere",
+    "Naranahalli",
+    "Ankalakoppa",
+    "Chandrashekarapura",
+    "Chengavi",
+    "Mavinahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.1740128,
+   "lon": 76.9629555
+  },
+  "572214": {
+   "villages": [
+    "Godekere",
+    "Honnebagi",
+    "Malligehalli",
+    "Thirthapura",
+    "Barasidlahalli",
+    "Chikkanayakanahalli",
+    "Jayachamarajapura"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.4152651,
+   "lon": 76.6225125
+  },
+  "572215": {
+   "villages": [
+    "Pura",
+    "Dunda",
+    "Dombaranahalli",
+    "Heggere",
+    "Kondajji",
+    "Machenahalli",
+    "Dandinashivara",
+    "Beechanahalli",
+    "Hullekere"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2555543,
+   "lon": 76.7097794
+  },
+  "572216": {
+   "villages": [
+    "Chikkonahalli",
+    "Gubbi Hosahalli",
+    "Singonahalli",
+    "Gubbi Bazar",
+    "Adagur",
+    "Madenahalli",
+    "Galaga",
+    "Herur",
+    "Lakkenahalli",
+    "Nagasandra gubbi",
+    "Prabhuvanahalli",
+    "Ammanaghatta",
+    "Thippur",
+    "Gopalapura",
+    "Madapura",
+    "Mukanahallipatna",
+    "Gubbi"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2554556,
+   "lon": 76.7095655
+  },
+  "572217": {
+   "villages": [
+    "Hulihalli",
+    "Kamalapura",
+    "Baluvaneralu",
+    "Gudigondanahalli",
+    "Ramanahalli",
+    "Honnavalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3300628,
+   "lon": 76.3865416
+  },
+  "572218": {
+   "villages": [
+    "Ganadal",
+    "Bellara",
+    "Hoisalakatte",
+    "Thirumalapura",
+    "Huliyar",
+    "Dabbegunte",
+    "Yelanadu",
+    "Dasudi",
+    "Kenkere",
+    "Melanahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3381916,
+   "lon": 76.3841858
+  },
+  "572219": {
+   "villages": [
+    "Byadigere",
+    "Kadaba",
+    "Koppa",
+    "Belavatha",
+    "Doddakunnala"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2394521,
+   "lon": 76.8585586
+  },
+  "572220": {
+   "villages": [
+    "Bittagondanahalli",
+    "K.Mathighatta",
+    "Doddagoraghatta",
+    "Ajjenahalli",
+    "Kallur",
+    "K.Kallahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2395478,
+   "lon": 76.8609384
+  },
+  "572221": {
+   "villages": [
+    "Soravanahalli",
+    "Mayasandra",
+    "Dasihalli",
+    "Jadeya",
+    "Kalkere",
+    "Kanakoor",
+    "Nagalapura",
+    "Doddamalligere",
+    "Doddasettikere",
+    "Mavinakere",
+    "Mugalur",
+    "Muthugadahalli",
+    "Talakere",
+    "Vittalapura"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.0786585,
+   "lon": 76.5656589
+  },
+  "572222": {
+   "villages": [
+    "Hagalawadi",
+    "Hosakere",
+    "Mooganayakana Kote",
+    "Somalapura",
+    "Shivapura",
+    "Bettadahalli",
+    "Galigekere",
+    "Alalaghatta"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.0786433,
+   "lon": 76.7545652
+  },
+  "572223": {
+   "villages": [
+    "Bandihalli",
+    "Handanahalli",
+    "Thyagatur",
+    "N.Mathighatta",
+    "Nittur",
+    "Haradagere",
+    "Adalagere",
+    "Hodalur"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2286544,
+   "lon": 76.9064548
+  },
+  "572224": {
+   "villages": [
+    "Aremallenahalli",
+    "Masavanaghatta",
+    "Nonavinakere",
+    "Hunseghatta",
+    "Nellikere",
+    "Sugur",
+    "Vignasanthe",
+    "Albur",
+    "Bajagur",
+    "Ganganaghatta",
+    "Gungurumale",
+    "Nagaraghatta",
+    "Kanathur",
+    "Thandaga"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.3552617,
+   "lon": 76.8111515
+  },
+  "572225": {
+   "villages": [
+    "Attikatte",
+    "Marasettihalli",
+    "Sampige",
+    "Samige Road Railway Station",
+    "Sampige hosahalli",
+    "Talavaranahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.1650716,
+   "lon": 76.5550313
+  },
+  "572226": {
+   "villages": [
+    "Thammadihalli",
+    "Settikere",
+    "Kuppur",
+    "Dugudihalli",
+    "Sasalu",
+    "Navile"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2455829,
+   "lon": 76.7859814
+  },
+  "572227": {
+   "villages": [
+    "Benakanakere",
+    "Dabbeghatta",
+    "Muniyur",
+    "Gonitumkur",
+    "Kodagihally",
+    "Aralikere",
+    "Turuvekere",
+    "Madihalli",
+    "Dwaranahalli",
+    "Guddenahalli"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.2495445,
+   "lon": 76.4871452
+  },
+  "572228": {
+   "villages": [
+    "Muddenahalli",
+    "Barakanalu",
+    "Ramanahalli",
+    "Sadarahalli",
+    "Thimmanahalli",
+    "Kandikere",
+    "Belaguli",
+    "Chikkabidare"
+   ],
+   "taluk": "",
+   "district": "Tumakuru",
+   "state": "Karnataka",
+   "lat": 13.1589659,
+   "lon": 76.8415256
   }
  }
 }
