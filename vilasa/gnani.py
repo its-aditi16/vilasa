@@ -122,7 +122,9 @@ class _Usage:
 def wav_seconds(data: bytes) -> float:
     try:
         with wave.open(io.BytesIO(data)) as w:
-            return w.getnframes() / float(w.getframerate())
+            # Timbre streams its WAVs with a placeholder 0xFFFFFFFF size, so cap by the bytes present
+            frames = min(w.getnframes(), len(data) // (w.getsampwidth() * w.getnchannels()))
+            return frames / float(w.getframerate())
     except (wave.Error, EOFError):
         return 0.0
 

@@ -112,3 +112,10 @@ def test_missing_key_is_a_clear_error(cfg):
 def test_phone_and_noise_degradation():
     x, rate = read_wav(add_noise(phone_quality(wav(1.0)), 5))
     assert rate == 8000 and abs(len(x) - 8000) < 5
+
+
+def test_wav_seconds_ignores_placeholder_header_size():
+    data = bytearray(wav(seconds=1.0))
+    assert gnani.wav_seconds(bytes(data)) == pytest.approx(1.0, abs=0.01)
+    data[4:8] = data[40:44] = b"\xff\xff\xff\xff"  # how Timbre streams its WAVs
+    assert gnani.wav_seconds(bytes(data)) == pytest.approx(1.0, abs=0.01)
