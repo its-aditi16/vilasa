@@ -179,11 +179,22 @@ def test_real_village_whose_name_is_also_a_direction_word_still_matches():
     assert m.name == "Thadi" and m.confident
 
 
-def test_real_village_with_landmark_words_in_its_name_stays_in_the_running():
-    pin = _pin_of("Samige Road Railway Station")
-    m = match_village("Samige Road Railway Station", PINS.candidates(pin), own_pin=pin)
-    # The matcher compares at most 3 words at a time, so this 4-word name comes second to 'Sampige'.
-    assert m.name == "Sampige" and m.runner_up == "Samige Road Railway Station" and not m.confident
+@pytest.mark.parametrize("name", ["Samige Road Railway Station", "K R S Agrahara Kunigal", "R M Yard Madhugiri", "K R Extn Tiptur"])
+def test_real_long_village_names_match_in_full(name):
+    pin = _pin_of(name)
+    m = match_village(name, PINS.candidates(pin), own_pin=pin)
+    assert m.name == name and m.confident
+
+
+def test_every_real_village_name_matches_itself_confidently():
+    for pin, info in PINS.pins.items():
+        for name in info.villages:
+            m = match_village(name, PINS.candidates(pin), own_pin=pin)
+            assert m.name == name and m.confident, (name, pin, m)
+
+
+def test_short_name_still_wins_when_only_the_short_name_is_said():
+    assert match_village("Kunigal", PINS.candidates(_pin_of("K R S Agrahara Kunigal")), own_pin=_pin_of("K R S Agrahara Kunigal")).name == "Kunigal"
 
 
 def test_village_not_found_asks_again():

@@ -28,6 +28,8 @@ UNSURE = 72.0  # accepted, but flagged for the read-back
 CERTAIN = 95.0  # at or above this, a short word or a close second place no longer makes a match unsure
 SHORT_WORD = 4  # a match on one word this short (phonetic-key letters) needs CERTAIN to be confident
 CLOSE_CALL = 4.0  # points between first and second place that count as too close to call
+SAME_SCORE = 3.0  # candidates this close are separated by how much of the answer they cover
+MAX_NAME_WORDS = 5
 
 FILLERS = {phonetic_key(w) for words in FILLER_WORDS.values() for w in words} | {
     phonetic_key(w) for w in ["um", "uh", "hmm", "madam", "okay"]  # not "sir": it collides with Sira/Shira
@@ -161,7 +163,7 @@ def match_village(text: str, candidates: list[tuple[str, str]], own_pin: str | N
     if not toks or not candidates:
         return VillageMatch(None, None, 0.0, heard=text.strip())
     grams: list[tuple[str, list[Token]]] = []
-    for n in (1, 2, 3):
+    for n in range(1, MAX_NAME_WORDS + 1):
         for i in range(len(toks) - n + 1):
             span = toks[i:i + n]
             grams.append((" ".join(t.key for t in span), span))
@@ -181,6 +183,10 @@ def match_village(text: str, candidates: list[tuple[str, str]], own_pin: str | N
             best -= 3.0  # prefer villages in the PIN on the parcel, unless clearly another
         scored.append((best, name, pin, best_span))
     scored.sort(key=lambda x: -x[0])
+    level = [c for c in scored if scored[0][0] - c[0] <= SAME_SCORE]
+    widest = max(level, key=lambda c: len(c[3]))  # 'K R S Agrahara Kunigal' beats 'Kunigal'
+    scored.remove(widest)
+    scored.insert(0, widest)
     best, name, pin, span = scored[0]
     best = min(best, 100.0)
     alts = [(n, p, round(s, 1)) for s, n, p, _ in scored[1:4]]

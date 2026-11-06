@@ -144,6 +144,14 @@ def test_longer_word_is_confident_at_85():
     assert 85 <= m.score < 95 and m.confident
 
 
+def test_level_scores_go_to_the_name_covering_more_of_the_answer():
+    cands = [("Kunigal", "572130"), ("K R S Agrahara Kunigal", "572130")]
+    assert match_village("K R S Agrahara Kunigal", cands).name == "K R S Agrahara Kunigal"
+    # the wider name wins inside the 3-point window even when its own score is a little lower
+    m = match_village("Hosa Kunigal", [("Kunigal", "572130"), ("Hosa Kunigala", "572130")])
+    assert m.name == "Hosa Kunigala" and len(m.heard.split()) == 2
+
+
 def test_close_call_keeps_the_best_and_names_the_runner_up():
     m = match_village("Kadavige", [("Kadavigere", "572137"), ("Kadavigeri", "572137")])
     assert m.name == "Kadavigere" and m.runner_up == "Kadavigeri"
