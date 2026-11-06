@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from .normalize import phonetic_key
+from .normalize import detect_language, phonetic_key
 
 LANGS = {
     "kn-IN": "Kannada",
@@ -207,15 +207,31 @@ def language_hint_index() -> dict[str, set[str]]:
     return idx
 
 
+def _landmark_words(words: list[str], language: str) -> tuple[list[str], list[str]]:
+    """One language's native-script words, and one romanised spelling of each ('gudi' for 'ಗುಡಿ')."""
+    native = [w for w in words if not w.isascii() and detect_language(w) == language]
+    keys = {phonetic_key(w) for w in native}
+    romanised: dict[str, str] = {}
+    for w in words:
+        if w.isascii() and phonetic_key(w) in keys:
+            romanised.setdefault(phonetic_key(w), w)
+    return native, list(romanised.values())
+
+
 def landmark_keyterms(language: str | None = None) -> list[str]:
-    """A short set of landmark/direction words to bias Prisma with (keyterms budget is 200)."""
-    langs = [language] if language in LANGS else list(LANGS)
-    out = []
-    for label, words in LANDMARKS.items():
-        out.append(label)
-        if language:
-            out += [w for w in words if not w.isascii()][:2]
+    """A short set of landmark/direction words to bias Prisma with (keyterms budget is 200).
+
+    English labels always; other words only in the caller's language. Another language's
+    script pulls Prisma's transcript into that script: Hindi speech came back in Kannada
+    letters, tagged kn-IN. Direction words go first because the list is cut at the budget.
+    """
+    out = list(LANDMARKS) + list(RELATIONS)
+    if language not in LANGS or language == "en-IN":
+        return out
     for by_lang in RELATIONS.values():
-        for lang in langs:
-            out += by_lang.get(lang, [])[:1]
+        words = by_lang.get(language, [])
+        out += [w for w in words if w.isascii()][:1] + [w for w in words if not w.isascii()][:1]
+    for words in LANDMARKS.values():
+        native, romanised = _landmark_words(words, language)
+        out += native + romanised
     return out

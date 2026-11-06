@@ -176,8 +176,20 @@ class Landmark:
             return ""
         return f"{(self.relation or 'near').capitalize()} {what}"
 
+    def _names(self) -> set[str]:
+        return {phonetic_key(w) for w in self.name.split()}
+
+    def same_place(self, other: "Landmark") -> bool:
+        """'Behind temple' and 'Behind Anjaneya temple' are one place; 'Behind Shiva temple' is another."""
+        if (self.relation, self.kind) != (other.relation, other.kind):
+            return False
+        return self._names() <= other._names() or other._names() <= self._names()
+
+    def parts(self) -> list["Landmark"]:
+        return [self] + self.also
+
     def english(self) -> str:
-        return "; ".join(x for x in [self._one()] + [a._one() for a in self.also] if x)
+        return "; ".join(x for x in [a._one() for a in self.parts()] if x)
 
 
 ADJECTIVES = {phonetic_key(w): label for label, words in {
@@ -342,14 +354,17 @@ class House:
     def found(self) -> bool:
         return bool(self.number or self.colour or (self.landmark and self.landmark.found))
 
-    def english(self) -> str:
+    def english(self, main: Landmark | None = None) -> str:
+        """`main` is the address's main landmark: anything that repeats it is left out."""
         parts = []
         if self.number:
             parts.append(f"House no. {self.number}")
         if self.colour:
             parts.append(f"{self.colour} house")
         if self.landmark and self.landmark.found:
-            parts.append(self.landmark.english().lower())
+            seen = main.parts() if main else []
+            new = [a._one() for a in self.landmark.parts() if not any(a.same_place(m) for m in seen)]
+            parts += [x.lower() for x in new if x]
         return ", ".join(parts) if parts else ""
 
 

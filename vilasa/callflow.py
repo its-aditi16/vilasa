@@ -191,7 +191,7 @@ class CallSession:
         matched_pin = v.pin if v and v.name else None
         pin_info = self.pins.get(matched_pin) if matched_pin else info
         landmark_en = self.landmark.english() if self.landmark and self.landmark.found else (self.landmark_text or None)
-        house_en = self.house.english() if self.house and self.house.found else (self.house_text or None)
+        house_en = (self.house.english(self.landmark) or None) if self.house and self.house.found else (self.house_text or None)
         place = " ".join(
             x for x in [
                 (self.landmark.name + " " + (self.landmark.kind or "")).strip() if self.landmark and self.landmark.found else "",

@@ -79,6 +79,7 @@ The benchmark scores the audio in five conditions: clean, phone (8 kHz, 300–34
 - **Exact:** the raw transcript already matched the name with no fuzzy help
 - **House no.:** the house number was captured
 - **Landmark:** the landmark type was recognised
+- **Language detected:** Prisma's detected language matched the utterance's language (Kanglish counts as Kannada)
 
 Results are cached, so a re-run costs nothing for items already done.
 

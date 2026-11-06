@@ -7,7 +7,7 @@ import wave
 import pytest
 
 from vilasa import gnani
-from vilasa.audio import add_noise, phone_quality, read_wav
+from vilasa.audio import add_noise, phone_quality, read_wav, trim
 from vilasa.config import Settings
 
 
@@ -114,8 +114,24 @@ def test_phone_and_noise_degradation():
     assert rate == 8000 and abs(len(x) - 8000) < 5
 
 
-def test_wav_seconds_ignores_placeholder_header_size():
-    data = bytearray(wav(seconds=1.0))
-    assert gnani.wav_seconds(bytes(data)) == pytest.approx(1.0, abs=0.01)
-    data[4:8] = data[40:44] = b"\xff\xff\xff\xff"  # how Timbre streams its WAVs
-    assert gnani.wav_seconds(bytes(data)) == pytest.approx(1.0, abs=0.01)
+def placeholder_header(data):
+    """How Timbre streams its WAVs: both size fields are 0xFFFFFFFF."""
+    data = bytearray(data)
+    data[4:8] = data[40:44] = b"\xff\xff\xff\xff"
+    return bytes(data)
+
+
+def test_wav_seconds_uses_real_length_when_header_size_is_impossible():
+    assert gnani.wav_seconds(placeholder_header(wav(seconds=1.0))) == 1.0
+
+
+def test_wav_seconds_trusts_a_valid_header_over_trailing_chunks():
+    assert gnani.wav_seconds(wav(seconds=1.0) + b"LIST\x04\x00\x00\x00abcd") == 1.0
+
+
+def test_read_wav_and_trim_handle_placeholder_header():
+    data = placeholder_header(wav(seconds=2.0))
+    x, rate = read_wav(data)
+    assert rate == 16000 and len(x) == 32000
+    assert trim(data, seconds=3.0) == data
+    assert len(read_wav(trim(data, seconds=1.0))[0]) == 16000

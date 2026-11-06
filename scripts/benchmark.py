@@ -1,12 +1,13 @@
 """Does Vilasa get village names right on bad phone lines? Measure it.
 
 For every utterance × audio condition × (keyterms off / on) we ask Prisma v3.0 for a
-transcript, then score three things against ground truth:
+transcript, then score these against ground truth:
 
   village   – Vilasa's matcher picks the right village (and so the right PIN)
   exact     – the raw transcript already spells the village so it matches exactly (no fuzzy help)
   house     – the house number digits appear in the transcript
   landmark  – the landmark type is recognised (temple, school, lake …)
+  language  – Prisma's detected language is the utterance's language (Kanglish counts as Kannada)
 
     python scripts/benchmark.py --dry-run                 # how many calls / seconds of audio
     python scripts/benchmark.py --limit 5                 # quick check
@@ -66,9 +67,13 @@ def exact_hit(transcript: str, village: str) -> bool:
     return key in joined
 
 
-def score(row: dict, transcript: str, pins: PinDirectory) -> dict:
+def expected_language(row: dict) -> str:
+    return "kn-IN" if row["lang"] == "kn-en" else row["lang"]
+
+
+def score(row: dict, transcript: str, pins: PinDirectory, detected: str | None = None) -> dict:
     m = match_village(transcript, pins.candidates(row["pin"]), own_pin=row["pin"])
-    lm = parse_landmark(transcript, "kn-IN" if row["lang"] == "kn-en" else row["lang"])
+    lm = parse_landmark(transcript, expected_language(row))
     kinds = {lm.kind} | {a.kind for a in lm.also}
     digits = re.findall(r"\d+", _ascii_digits(transcript))
     return {
@@ -76,6 +81,7 @@ def score(row: dict, transcript: str, pins: PinDirectory) -> dict:
         "exact_ok": int(exact_hit(transcript, row["village"])),
         "house_ok": int(row["house_number"] in digits),
         "landmark_ok": int(row["landmark_kind"] in kinds),
+        "language_ok": int(detected == expected_language(row)),
         "matched": m.name or "",
         "match_score": m.score,
     }
@@ -98,13 +104,17 @@ def summarise(results: list[dict]) -> dict:
                 "exact": round(100 * sum(x["exact_ok"] for x in g) / n, 1),
                 "house": round(100 * sum(x["house_ok"] for x in g) / n, 1),
                 "landmark": round(100 * sum(x["landmark_ok"] for x in g) / n, 1),
+                "language": round(100 * sum(x["language_ok"] for x in g) / n, 1),
                 "latency_s": round(sum(float(x["latency"] or 0) for x in g) / n, 2),
             })
-    by_lang = defaultdict(lambda: defaultdict(list))
-    for r in results:
-        by_lang[r["lang"]][r["keyterms"]].append(r["village_ok"])
-    langs = {lang: {kt: round(100 * sum(v) / len(v), 1) for kt, v in d.items()} for lang, d in by_lang.items()}
-    return {"table": table, "village_by_language": langs}
+
+    def by_language(field: str) -> dict:
+        by_lang = defaultdict(lambda: defaultdict(list))
+        for r in results:
+            by_lang[r["lang"]][r["keyterms"]].append(r[field])
+        return {lang: {kt: round(100 * sum(v) / len(v), 1) for kt, v in d.items()} for lang, d in by_lang.items()}
+
+    return {"table": table, "village_by_language": by_language("village_ok"), "language_by_language": by_language("language_ok")}
 
 
 def write_reports(summary: dict, mock: bool):
@@ -112,13 +122,14 @@ def write_reports(summary: dict, mock: bool):
     out.mkdir(parents=True, exist_ok=True)
     (out / "summary.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False), encoding="utf-8")
     lines = ["# Vilasa benchmark" + (" (MOCK — not real Prisma results)" if mock else ""), "",
-             "| Audio | Keyterms | n | Village (Vilasa) | Village exact in transcript | House no. | Landmark | Latency |",
-             "|---|---|---|---|---|---|---|---|"]
+             "| Audio | Keyterms | n | Village (Vilasa) | Village exact in transcript | House no. | Landmark | Language detected | Latency |",
+             "|---|---|---|---|---|---|---|---|---|"]
     for t in summary["table"]:
-        lines.append(f"| {t['condition']} | {t['keyterms']} | {t['n']} | {t['village']}% | {t['exact']}% | {t['house']}% | {t['landmark']}% | {t['latency_s']}s |")
-    lines += ["", "## Village accuracy by language", "", "| Language | Keyterms off | Keyterms on |", "|---|---|---|"]
-    for lang, d in summary["village_by_language"].items():
-        lines.append(f"| {lang} | {d.get('off', '–')}% | {d.get('on', '–')}% |")
+        lines.append(f"| {t['condition']} | {t['keyterms']} | {t['n']} | {t['village']}% | {t['exact']}% | {t['house']}% | {t['landmark']}% | {t['language']}% | {t['latency_s']}s |")
+    for title, key in (("Village accuracy by language", "village_by_language"), ("Language detected correctly, by language", "language_by_language")):
+        lines += ["", f"## {title}", "", "| Language | Keyterms off | Keyterms on |", "|---|---|---|"]
+        for lang, d in summary[key].items():
+            lines.append(f"| {lang} | {d.get('off', '–')}% | {d.get('on', '–')}% |")
     (out / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     (out / "chart.html").write_text(chart_html(summary, mock), encoding="utf-8")
     print("\n".join(lines))
@@ -201,7 +212,7 @@ def main():
                         return
                     time.sleep(2)
                     continue
-                s = score(r, res.text, pins)
+                s = score(r, res.text, pins, res.language)
                 results.append({"id": r["id"], "lang": r["lang"], "condition": cond, "keyterms": kt, "transcript": res.text,
                                 "detected": res.language, "latency": res.latency, "cached": res.cached, **s})
                 flag = "✓" if s["village_ok"] else "✗"

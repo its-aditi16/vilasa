@@ -120,10 +120,12 @@ class _Usage:
 
 
 def wav_seconds(data: bytes) -> float:
+    buf = io.BytesIO(data)
     try:
-        with wave.open(io.BytesIO(data)) as w:
-            # Timbre streams its WAVs with a placeholder 0xFFFFFFFF size, so cap by the bytes present
-            frames = min(w.getnframes(), len(data) // (w.getsampwidth() * w.getnchannels()))
+        with wave.open(buf) as w:
+            # Timbre streams its WAVs with a placeholder 0xFFFFFFFF size, so cap by the bytes present.
+            # wave stops reading at the start of the audio, so buf.tell() is the header length.
+            frames = min(w.getnframes(), (len(data) - buf.tell()) // (w.getsampwidth() * w.getnchannels()))
             return frames / float(w.getframerate())
     except (wave.Error, EOFError):
         return 0.0

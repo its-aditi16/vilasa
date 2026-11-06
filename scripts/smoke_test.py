@@ -32,8 +32,9 @@ def show_extraction(text, pin, pins):
     lang = guess_language(text)
     m = match_village(text, pins.candidates(pin), own_pin=pin)
     print(f"   village : {m.name} ({m.score}%)  heard='{m.heard}'")
-    print(f"   landmark: {parse_landmark(text, lang).english() or '-'}")
-    print(f"   house   : {parse_house(text, lang).english() or '-'}")
+    landmark = parse_landmark(text, lang)
+    print(f"   landmark: {landmark.english() or '-'}")
+    print(f"   house   : {parse_house(text, lang).english(landmark) or '-'}")
 
 
 def main():

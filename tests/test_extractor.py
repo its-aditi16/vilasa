@@ -86,3 +86,23 @@ def test_yes_no(said, yes):
 ])
 def test_guess_language_romanised(said, lang):
     assert guess_language(said) == lang
+
+
+@pytest.mark.parametrize("main,said,expected", [
+    # same place: left out
+    ("ಆಂಜನೇಯ ಗುಡಿ ಹಿಂದೆ", "ಆಂಜನೇಯ ಗುಡಿ ಹಿಂದೆ ಮನೆ, ಮನೆ ನಂಬರ್ 23", "House no. 23"),
+    ("Anjaneya gudi hinde", "gudi hinde number 23", "House no. 23"),  # name said only once
+    ("gudi hinde", "Anjaneya gudi hinde number 23", "House no. 23"),
+    ("सरकारी स्कूल के सामने", "सरकारी स्कूल के सामने, घर नंबर 7", "House no. 7"),
+    ("gudi hinde, shaale hatra", "shaale hatra, number 23", "House no. 23"),  # repeats the second landmark
+    # a different place: kept
+    ("Anjaneya gudi hinde", "Shiva gudi hinde number 23", "House no. 23, behind shiva temple"),
+    ("gudi hinde", "gudi hatra number 23", "House no. 23, near temple"),
+    ("shaale hatra", "gudi hatra number 23", "House no. 23, near temple"),
+])
+def test_house_does_not_repeat_the_main_landmark(main, said, expected):
+    assert parse_house(said).english(parse_landmark(main)) == expected
+
+
+def test_house_keeps_its_landmark_when_no_main_landmark_is_given():
+    assert parse_house("gudi hinde number 23").english() == "House no. 23, behind temple"
