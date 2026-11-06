@@ -100,6 +100,15 @@ button { font: inherit; cursor: pointer; }
 .call { display: grid; grid-template-columns: minmax(0, 1fr); }
 .call[hidden] { display: none; }
 .controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.live { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 12px; align-items: center; }
+.switch { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.switch input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.callstatus { justify-self: end; min-height: 1.3em; font-size: .9rem; color: var(--ink-2); }
+.callstatus[data-phase="listening"] { color: var(--ok); font-weight: 600; }
+.callstatus[data-phase="speaking"] { color: var(--ink); font-weight: 600; }
+.level { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.level i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--ink-2); }
+.level i.voice { background: var(--ok); }
 .mic { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--ink); color: var(--paper); border: 0; border-radius: 999px; padding: 14px; font-weight: 600; font-size: 1rem; touch-action: none; user-select: none; }
 .mic.rec { background: var(--accent); color: var(--accent-ink); animation: pulse 1.2s infinite; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 25%, transparent); } }
@@ -124,6 +133,7 @@ dl { margin: 0; display: grid; gap: 8px; }
 @keyframes fresh { 0% { background: color-mix(in srgb, var(--marigold) 45%, transparent); } 100% { background: transparent; } }
 .badge { font-family: var(--mono); font-size: .72rem; font-weight: 500; padding: 2px 6px; border-radius: 6px; background: var(--ok-bg); color: var(--ok); white-space: nowrap; }
 .badge.fix { background: var(--warn-bg); color: var(--ink); }
+.fixedline { margin: 14px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--ok-bg); color: var(--ok); font-weight: 600; }
 .maps { display: inline-block; margin-top: 14px; color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--marigold); }
 .words { margin-top: 14px; font-size: .9rem; }
 .words summary { cursor: pointer; color: var(--ink-2); }

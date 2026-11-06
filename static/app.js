@@ -1,15 +1,24 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const STEPS = ["village", "landmark", "house", "confirm"];
+  const STATUS = { speaking: "Vilasa speaking", listening: "Listening…", thinking: "Thinking…", finished: "Call finished", idle: "" };
+  const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+  const MAX_ERRORS_IN_A_ROW = 2;
   let session = null;
   let busy = false;
   let finished = false;
   let lastLang = null;
-  let recorder = null;
-  let currentAudio = null;
+  let phase = "idle";
+  let holding = false;
+  let vad = null; // set while hands-free is listening
+  let speechToken = 0;
+  let errorsInARow = 0;
+  const recorder = new WavRecorder();
+  const speaker = new Audio();
   const fixed = new Set();
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const handsFree = () => $("handsFree").checked;
 
   async function api(path, opts = {}) {
     const res = await fetch(path, opts);
@@ -46,10 +55,121 @@
     $("queue").querySelectorAll("[data-call]").forEach((b) => b.addEventListener("click", () => startCall(b.dataset.call)));
   }
 
+  // ---------------------------------------------------------------- call status
+  function setPhase(next) {
+    phase = next;
+    const line = $("callStatus");
+    line.textContent = STATUS[next];
+    line.dataset.phase = next;
+    if (next !== "listening") showLevel(0, false);
+  }
+
+  function showLevel(level, voice) {
+    const fill = $("levelFill");
+    fill.style.width = `${Math.min(100, Math.sqrt(level) * 220)}%`;
+    fill.classList.toggle("voice", !!voice);
+  }
+
+  // ---------------------------------------------------------------- speaking
+  function stopSpeaking() {
+    speechToken++;
+    speaker.pause();
+  }
+
+  function speak(url) {
+    stopListening();
+    const token = ++speechToken;
+    setPhase("speaking");
+    const after = () => {
+      if (token !== speechToken) return;
+      speechToken++;
+      afterSpeech();
+    };
+    speaker.onended = after;
+    speaker.onerror = after;
+    speaker.src = url;
+    speaker.play().catch(after); // no audio is no reason to stop the call
+  }
+
+  function afterSpeech() {
+    if (finished) { endOfCall(); return; }
+    setPhase("idle");
+    setTimeout(listen, 150); // let the room settle so the mic doesn't hear the end of the prompt
+  }
+
+  function endOfCall() {
+    setPhase("finished");
+    recorder.close();
+  }
+
+  // ---------------------------------------------------------------- hands-free
+  function micFailed(err) {
+    $("handsFree").checked = false;
+    addError(`Microphone not available: ${err.message}. Hands-free is off. Type the answer instead.`);
+  }
+
+  async function listen() {
+    if (!handsFree() || !session || finished || busy || holding || vad || phase !== "idle") return;
+    if (document.activeElement === $("typedInput")) return; // they are typing
+    const listener = new VoiceActivity();
+    vad = listener;
+    setPhase("listening");
+    try {
+      await recorder.open();
+    } catch (err) {
+      vad = null;
+      setPhase("idle");
+      micFailed(err);
+      return;
+    }
+    if (vad !== listener) return; // cancelled while the mic was opening
+    recorder.begin();
+    recorder.onFrame = (level, ms) => {
+      const event = listener.feed(level, ms);
+      showLevel(level, listener.speaking);
+      if (event === "end" || event === "max") {
+        const to = (listener.speechEnd + 300) / 1000;
+        const out = recorder.finish({ from: Math.max(0, listener.speechStart - 300) / 1000, to });
+        stopListening();
+        sendAudio(out);
+      } else if (event === "no-speech") {
+        stopListening();
+        const f = new FormData();
+        f.append("no_speech", "true");
+        sendTurn(f);
+      }
+    };
+  }
+
+  function stopListening() {
+    if (!vad) return;
+    vad = null;
+    recorder.onFrame = null;
+    recorder.recording = false;
+    setPhase("idle");
+  }
+
+  function sendAudio(out) {
+    const f = new FormData();
+    f.append("audio", out.blob, "turn.wav");
+    sendTurn(f);
+  }
+
+  $("handsFree").addEventListener("change", () => {
+    if (handsFree()) { recorder.open().catch(micFailed); listen(); return; }
+    stopListening();
+    if (!holding) recorder.close();
+  });
+
   // ---------------------------------------------------------------- call
   async function startCall(id) {
     if (busy) return;
     busy = true;
+    stopListening();
+    stopSpeaking();
+    speaker.src = SILENT_WAV; // phones only let audio play later if it started during this tap
+    speaker.play().catch(() => {});
+    if (handsFree()) recorder.open().catch(micFailed); // ask for the mic now, while the person is here to answer
     document.querySelectorAll(".job").forEach((j) => j.classList.toggle("active", j.id === `job-${id}`));
     $("chat").innerHTML = "";
     $("callEmpty").hidden = true;
@@ -57,13 +177,15 @@
     if (window.innerWidth < 1081) document.querySelector(".phone").scrollIntoView({ behavior: "smooth", block: "start" });
     lastLang = null;
     finished = false;
+    errorsInARow = 0;
     setControls(true);
+    setPhase("thinking");
     try {
       const p = await api("/api/calls", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ delivery_id: id }) });
       session = p.session_id;
+      busy = false;
       render(p);
-    } catch (e) { addError(e.message); }
-    busy = false;
+    } catch (e) { busy = false; setPhase("idle"); addError(e.message); }
     setControls(finished);
   }
 
@@ -71,33 +193,25 @@
     const div = document.createElement("div");
     div.className = `msg ${who}`;
     div.innerHTML = esc(text) + (audioUrl ? ` <button class="play" title="Play again" aria-label="Play again">▶︎</button>` : "") + (meta ? `<span class="meta">${esc(meta)}</span>` : "");
-    if (audioUrl) div.querySelector(".play").addEventListener("click", () => play(audioUrl));
+    if (audioUrl) div.querySelector(".play").addEventListener("click", () => speak(audioUrl));
     $("chat").appendChild(div);
     $("chat").scrollTop = $("chat").scrollHeight;
   }
 
   function addError(text) { addMsg("err", text); }
 
-  function play(url) {
-    try {
-      if (currentAudio) currentAudio.pause();
-      currentAudio = new Audio(url);
-      currentAudio.play().catch(() => {});
-    } catch (e) { /* audio optional */ }
-  }
-
   function render(p) {
     if (p.heard) {
       const h = p.heard;
       const bits = [h.source === "prisma" ? "Prisma v3" : h.source];
       if (h.language) bits.push(h.language);
-      if (h.latency) bits.push(`${(+h.latency).toFixed(2)}s`);
       if (h.keyterms) bits.push(`${h.keyterms} keyterms`);
       if (h.cached) bits.push("cached");
+      if (h.stt_ms) bits.push(`STT ${h.stt_ms} ms`);
+      if (p.turn_ms !== undefined) bits.push(`turn ${p.turn_ms} ms`);
       addMsg("c", h.text || "(silence)", bits.join(" · "));
     }
     addMsg("v", p.reply.text, "", p.reply.audio_url);
-    play(p.reply.audio_url);
 
     const lang = $("lang");
     lang.hidden = false;
@@ -116,6 +230,7 @@
       if (p.card.status === "confirmed") { fixed.add(p.card.delivery_id); loadQueue(); }
     }
     loadStatus();
+    speak(p.reply.audio_url);
   }
 
   function setRow(rowId, valueId, value) {
@@ -149,20 +264,35 @@
     st.className = "state " + (c.status === "confirmed" ? "confirmed" : "");
     const m = $("cMaps");
     if (c.maps_url) { m.hidden = false; m.href = c.maps_url; } else m.hidden = true;
+    const line = $("cFixed");
+    line.hidden = !(c.status === "confirmed" && c.call_seconds !== null);
+    if (!line.hidden) line.textContent = `Address fixed in ${Math.round(c.call_seconds)} seconds · ${c.turns} turn${c.turns === 1 ? "" : "s"}`;
     $("cWords").innerHTML = (c.customer_words || []).map((w) => `<li>${esc(w)}</li>`).join("");
   }
 
-  async function sendTurn(form) {
+  async function runTurn(request) {
     if (!session || busy) return;
     busy = true;
+    stopListening();
+    stopSpeaking();
     setControls(true);
+    setPhase("thinking");
+    let reply = null;
     try {
-      const p = await api(`/api/calls/${session}/turn`, { method: "POST", body: form });
-      render(p);
-    } catch (e) { addError(e.message); }
+      reply = await request();
+      errorsInARow = 0;
+    } catch (e) {
+      errorsInARow++;
+      addError(e.message);
+    }
     busy = false;
     setControls(finished);
+    if (reply) { render(reply); setControls(finished); return; }
+    setPhase("idle");
+    if (errorsInARow < MAX_ERRORS_IN_A_ROW) listen(); // a bad moment shouldn't end hands-free; repeated failures should
   }
+
+  const sendTurn = (form) => runTurn(() => api(`/api/calls/${session}/turn`, { method: "POST", body: form }));
 
   function setControls(disabled) {
     ["mic", "scripted"].forEach((id) => ($(id).disabled = disabled));
@@ -175,52 +305,61 @@
     const t = $("typedInput").value.trim();
     if (!t) return;
     $("typedInput").value = "";
+    $("typedInput").blur();
     const f = new FormData();
     f.append("text", t);
     sendTurn(f);
   });
+  $("typedInput").addEventListener("focus", () => { if (vad) stopListening(); });
+  $("typedInput").addEventListener("blur", () => { if (!$("typedInput").value) setTimeout(listen, 150); });
 
   // scripted demo answer
-  $("scripted").addEventListener("click", async () => {
-    if (!session || busy) return;
-    busy = true; setControls(true);
-    try { render(await api(`/api/calls/${session}/scripted`, { method: "POST" })); } catch (e) { addError(e.message); }
-    busy = false;
-    setControls(finished);
-  });
+  $("scripted").addEventListener("click", () => runTurn(() => api(`/api/calls/${session}/scripted`, { method: "POST" })));
 
   // hold-to-talk
   const mic = $("mic");
   async function startRec(e) {
     e.preventDefault();
-    if (!session || busy || recorder) return;
-    if (currentAudio) currentAudio.pause();
+    if (!session || busy || holding || finished) return;
+    stopListening();
+    stopSpeaking();
+    holding = true;
+    mic.classList.add("rec");
+    $("micLabel").textContent = "Listening… release to send";
+    setPhase("listening");
     try {
-      recorder = new WavRecorder();
+      await recorder.open();
+      if (!holding) return; // already released
+      recorder.begin();
       recorder.onLimit = stopRec;
-      await recorder.start();
-      mic.classList.add("rec");
-      $("micLabel").textContent = "Listening… release to send";
+      recorder.onFrame = (level) => showLevel(level, true);
     } catch (err) {
-      recorder = null;
+      holding = false;
+      mic.classList.remove("rec");
+      $("micLabel").textContent = "Hold to talk";
+      setPhase("idle");
       addError("Microphone not available: " + err.message + ". Type the answer instead.");
     }
   }
-  async function stopRec() {
-    if (!recorder) return;
-    const r = recorder;
-    recorder = null;
+  function stopRec() {
+    if (!holding) return;
+    holding = false;
     mic.classList.remove("rec");
     $("micLabel").textContent = "Hold to talk";
-    const out = await r.stop();
-    if (!out || out.seconds < 0.4) { addError("Too short — hold the button while you speak."); return; }
-    const f = new FormData();
-    f.append("audio", out.blob, "turn.wav");
-    sendTurn(f);
+    recorder.onFrame = null;
+    recorder.onLimit = null;
+    const out = recorder.finish();
+    setPhase("idle");
+    if (!out || out.seconds < 0.4) {
+      addError("Too short — hold the button while you speak.");
+      listen();
+      return;
+    }
+    sendAudio(out);
   }
   mic.addEventListener("pointerdown", startRec);
   mic.addEventListener("pointerup", stopRec);
-  mic.addEventListener("pointerleave", () => recorder && stopRec());
+  mic.addEventListener("pointerleave", () => holding && stopRec());
   document.addEventListener("keydown", (e) => { if (e.code === "Space" && document.activeElement === document.body && !e.repeat) startRec(e); });
   document.addEventListener("keyup", (e) => { if (e.code === "Space" && document.activeElement === document.body) stopRec(); });
 

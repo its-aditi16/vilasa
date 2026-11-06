@@ -277,13 +277,16 @@ class TimbreTTS:
             )
 
         with self._lock:
+            if path.exists():  # made by another request while this one waited for the lock
+                self.usage.log(kind="tts", chars=len(text), cached=True)
+                return path.read_bytes()
             resp = _with_retries(send)
-        if resp.status_code != 200:
-            raise _parse_error(resp)
-        audio = resp.content
-        if not audio.startswith(b"RIFF"):
-            raise GnaniError(200, "UNEXPECTED_TTS_BODY", resp.headers.get("Content-Type", "?") + " " + resp.text[:200])
-        path.write_bytes(audio)
+            if resp.status_code != 200:
+                raise _parse_error(resp)
+            audio = resp.content
+            if not audio.startswith(b"RIFF"):
+                raise GnaniError(200, "UNEXPECTED_TTS_BODY", resp.headers.get("Content-Type", "?") + " " + resp.text[:200])
+            path.write_bytes(audio)
         self.usage.log(kind="tts", chars=len(text), cached=False)
         return audio
 

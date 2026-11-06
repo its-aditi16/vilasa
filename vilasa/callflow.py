@@ -59,6 +59,8 @@ class CallSession:
     house_text: str = ""
     language_switched: bool = False
     last_detected: str | None = None
+    started_at: float = field(default_factory=time.time)
+    finished_at: float | None = None
 
     def __post_init__(self):
         self.language = self.delivery.get("default_language") or "kn-IN"
@@ -107,7 +109,10 @@ class CallSession:
         handler = {VILLAGE: self._on_village, LANDMARK: self._on_landmark, HOUSE: self._on_house, CONFIRM: self._on_confirm}
         if self.state not in handler:
             return self.turns[-1]
-        return handler[self.state](text)
+        reply = handler[self.state](text)
+        if self.finished and self.finished_at is None:
+            self.finished_at = time.time()
+        return reply
 
     def _retry_or(self, advance) -> Turn:
         if self.retries < MAX_RETRIES:
@@ -222,6 +227,7 @@ class CallSession:
             "customer_words": [t.text for t in self.turns if t.role == "customer" and t.text],
             "maps_url": f"https://www.google.com/maps/search/?api=1&query={quote_plus(place)}" if place else None,
             "turns": len([t for t in self.turns if t.role == "customer"]),
+            "call_seconds": round(self.finished_at - self.started_at, 1) if self.finished_at else None,
         }
 
     def transcript(self) -> list[dict]:
