@@ -127,3 +127,30 @@ def test_card_keeps_a_different_landmark_in_the_house():
 
 def test_card_house_is_empty_when_it_only_repeats_the_landmark():
     assert _card("ಆಂಜನೇಯ ಗುಡಿ ಹಿಂದೆ", "ಆಂಜನೇಯ ಗುಡಿ ಹಿಂದೆ")["house"] is None
+
+
+def test_stt_context_never_sends_vilasas_prompt_as_previous_text():
+    d = DELIVERIES[0]
+    s = CallSession(d, PINS)
+    s.start()
+    for step in ("village", "landmark", "house", "confirm"):
+        assert set(s.stt_context()) == {"keyterms", "topic", "language_code"}
+        s.handle(d["mock_answers"][step], "kn-IN")
+
+
+def _replies(delivery, answers):
+    s = CallSession(delivery, PINS)
+    s.start()
+    return [s.handle(text, detect_language(text)).language for text in answers]
+
+
+def test_hindi_from_the_first_answer_switches_and_stays_in_hindi():
+    d = next(x for x in DELIVERIES if x["id"] == "VIL-1002")
+    a = d["mock_answers"]
+    assert _replies(d, [a["village"], a["landmark"], a["house"], a["confirm"]]) == ["hi-IN"] * 4
+
+
+def test_reply_switches_once_the_transcript_turns_hindi_at_the_landmark_step():
+    # Call-flow logic only: this hands in clean Hindi text, so it says nothing about what live Prisma writes.
+    answers = ["ನಮ್ಮೂರು ಕ್ಯಾತಸಂದ್ರ", "आंजनेय मंदिर के पीछे", "घर नंबर 23, नीला घर", "हाँ सही है"]
+    assert _replies(DELIVERIES[0], answers) == ["kn-IN", "hi-IN", "hi-IN", "hi-IN"]

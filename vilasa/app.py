@@ -104,7 +104,7 @@ async def call_turn(sid: str, audio: UploadFile | None = File(None), text: str |
         try:
             r = STT.transcribe(
                 wav, filename="turn.wav", language_code=ctx["language_code"], keyterms=ctx["keyterms"],
-                topic=ctx["topic"], previous_text=ctx["previous_text"], hint=hint,
+                topic=ctx["topic"], hint=hint,
             )
         except GnaniError as exc:
             return JSONResponse({"error": exc.code, "message": exc.message}, status_code=502)

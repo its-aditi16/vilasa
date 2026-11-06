@@ -65,7 +65,7 @@ class CallSession:
         return str(self.delivery.get("pin", ""))
 
     def stt_context(self) -> dict:
-        """keyterms / topic / previous_text for the next Prisma call."""
+        """keyterms / topic for the next Prisma call."""
         extra = []
         if self.village and self.village.name:
             extra.append(self.village.name)
@@ -73,7 +73,6 @@ class CallSession:
         return {
             "keyterms": self.pins.keyterms(self.pin, language=lang, extra=extra),
             "topic": TOPICS.get(self.state, ""),
-            "previous_text": self.turns[-1].text if self.turns else "",
             "language_code": "indic-auto",
         }
 
