@@ -197,6 +197,30 @@ def test_short_name_still_wins_when_only_the_short_name_is_said():
     assert match_village("Kunigal", PINS.candidates(_pin_of("K R S Agrahara Kunigal")), own_pin=_pin_of("K R S Agrahara Kunigal")).name == "Kunigal"
 
 
+@pytest.mark.parametrize("pin_of,transcript,village", [
+    ("Bilidevalaya", "My village is Bili Devalaya, near the government school, house number 2", "Bilidevalaya"),
+    ("Bilidevalaya", "ನಮ್ಮೂರು ಬಿಳಿ ದೇವಾಲಯ ನೀರಿನ tank ಹತ್ತಿರ, ನಮ್ಮ ಮನೆ ಮನೆ number 3.", "Bilidevalaya"),
+    ("Galigekere", "ನಮ್ಮೂರು ಗಲ್ಲಿಗೆ ಕೆರೆ, bus ನಿಲ್ದಾಣ ಎದುರು ನಮ್ಮ ಮನೆ. ಮನೆ number 161.", "Galigekere"),
+])
+def test_a_village_said_as_two_lexicon_words_still_matches(pin_of, transcript, village):
+    pin = _pin_of(pin_of)
+    assert match_village(transcript, PINS.candidates(pin), own_pin=pin).name == village
+
+
+def test_the_same_words_apart_are_still_ignored():
+    pin = _pin_of("Bilidevalaya")
+    assert match_village("ಬಿಳಿ ಮನೆ", PINS.candidates(pin), own_pin=pin).name is None  # 'white house'
+
+
+@pytest.mark.parametrize("pin_of,transcript,not_this", [
+    ("Dyagerahalli", "ನಮ್ಮೂರು Devalahalli, bus stand ಎಡೂರು, house number 172.", "Hussainpura"),
+    ("Mavinahalli", "मेरा गाँव मबिनहल्ली है। bus stand के पास घर है।", "Heggere"),
+])
+def test_address_words_side_by_side_do_not_join_into_a_village(pin_of, transcript, not_this):
+    pin = _pin_of(pin_of)
+    assert match_village(transcript, PINS.candidates(pin), own_pin=pin).name != not_this
+
+
 def test_village_not_found_asks_again():
     s = CallSession({"pin": "572138"}, PINS)
     s.start()

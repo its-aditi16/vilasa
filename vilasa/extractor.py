@@ -30,6 +30,7 @@ SHORT_WORD = 4  # a match on one word this short (phonetic-key letters) needs CE
 CLOSE_CALL = 4.0  # points between first and second place that count as too close to call
 SAME_SCORE = 3.0  # candidates this close are separated by how much of the answer they cover
 MAX_NAME_WORDS = 5
+JOINED_NAME = 90.0  # two words joined must spell a name this closely; 'house number' is not Hussainpura
 
 FILLERS = {phonetic_key(w) for words in FILLER_WORDS.values() for w in words} | {
     phonetic_key(w) for w in ["um", "uh", "hmm", "madam", "okay"]  # not "sir": it collides with Sira/Shira
@@ -157,9 +158,22 @@ def _could_name_a_village(key: str, names: set[str]) -> bool:
     return not any(form in landmark_index() for form in _inflections(key))  # 'ಗುಡಿಯ' is still 'ಗುಡಿ'
 
 
+def _words_that_join_into_a_name(toks: list[Token], candidates: list[tuple[str, str]]) -> set[int]:
+    """'Bili Devalaya' is Bilidevalaya, though on their own the words mean 'white' and 'temple'."""
+    names = [phonetic_key(name).replace(" ", "") for name, _ in candidates]
+    keep: set[int] = set()
+    for i in range(len(toks) - 1):
+        joined = toks[i].key + toks[i + 1].key
+        if any(fuzz.ratio(joined, name) >= JOINED_NAME for name in names):
+            keep.update((i, i + 1))
+    return keep
+
+
 def match_village(text: str, candidates: list[tuple[str, str]], own_pin: str | None = None) -> VillageMatch:
     names = {part for name, _ in candidates for part in phonetic_key(name).split()}
-    toks = [t for t in tokenize(text) if _could_name_a_village(t.key, names)]
+    all_toks = tokenize(text)
+    joined = _words_that_join_into_a_name(all_toks, candidates)
+    toks = [t for i, t in enumerate(all_toks) if i in joined or _could_name_a_village(t.key, names)]
     if not toks or not candidates:
         return VillageMatch(None, None, 0.0, heard=text.strip())
     grams: list[tuple[str, list[Token]]] = []
