@@ -100,6 +100,7 @@
   function endOfCall() {
     setPhase("finished");
     recorder.close();
+    if (window.innerWidth < 1081) $("card").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   // ---------------------------------------------------------------- hands-free
@@ -263,7 +264,7 @@
     st.textContent = c.status;
     st.className = "state " + (c.status === "confirmed" ? "confirmed" : "");
     const m = $("cMaps");
-    if (c.maps_url) { m.hidden = false; m.href = c.maps_url; } else m.hidden = true;
+    if (c.maps_url && c.village) { m.hidden = false; m.href = c.maps_url; } else m.hidden = true;
     const line = $("cFixed");
     line.hidden = !(c.status === "confirmed" && c.call_seconds !== null);
     if (!line.hidden) line.textContent = `Address fixed in ${Math.round(c.call_seconds)} seconds · ${c.turns} turn${c.turns === 1 ? "" : "s"}`;

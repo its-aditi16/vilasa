@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import shutil
+import struct
 import subprocess
 import wave
 
@@ -14,6 +15,17 @@ MAX_SECONDS = 29.5  # Prisma REST accepts up to 30 s per request
 
 def is_wav(data: bytes) -> bool:
     return data[:4] == b"RIFF" and data[8:12] == b"WAVE"
+
+
+def with_real_sizes(data: bytes) -> bytes:
+    """Timbre streams its WAVs with 0xFFFFFFFF as both sizes. Browsers should be told the real length."""
+    pos = data.find(b"data", 12)
+    if not is_wav(data) or pos < 0 or data[pos + 4:pos + 8] != b"\xff\xff\xff\xff":
+        return data
+    fixed = bytearray(data)
+    fixed[4:8] = struct.pack("<I", len(data) - 8)
+    fixed[pos + 4:pos + 8] = struct.pack("<I", len(data) - pos - 8)
+    return bytes(fixed)
 
 
 def ffmpeg_available() -> bool:

@@ -7,7 +7,7 @@ import wave
 import pytest
 
 from vilasa import gnani
-from vilasa.audio import add_noise, phone_quality, read_wav, trim
+from vilasa.audio import add_noise, phone_quality, read_wav, trim, with_real_sizes
 from vilasa.config import Settings
 
 
@@ -127,6 +127,13 @@ def test_wav_seconds_uses_real_length_when_header_size_is_impossible():
 
 def test_wav_seconds_trusts_a_valid_header_over_trailing_chunks():
     assert gnani.wav_seconds(wav(seconds=1.0) + b"LIST\x04\x00\x00\x00abcd") == 1.0
+
+
+def test_placeholder_sizes_are_replaced_with_the_real_ones():
+    good = wav(seconds=1.0)
+    assert with_real_sizes(placeholder_header(good)) == good
+    assert with_real_sizes(good) == good
+    assert with_real_sizes(b"not audio") == b"not audio"
 
 
 def test_read_wav_and_trim_handle_placeholder_header():

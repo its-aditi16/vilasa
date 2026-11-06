@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from .audio import to_wav
+from .audio import to_wav, with_real_sizes
 from .callflow import CallSession
 from .config import ROOT, settings
 from .gnani import GnaniError, get_clients, usage_summary
@@ -203,4 +203,4 @@ def speech(key: str):
         audio = TTS.synthesize(text, language=language)
     except GnaniError as exc:
         return JSONResponse({"error": exc.code, "message": exc.message}, status_code=502)
-    return Response(audio, media_type="audio/wav", headers={"Cache-Control": "max-age=86400"})
+    return Response(with_real_sizes(audio), media_type="audio/wav", headers={"Cache-Control": "max-age=86400"})
