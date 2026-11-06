@@ -8,12 +8,14 @@ from dataclasses import dataclass, field
 from rapidfuzz import fuzz
 
 from .lexicon import (
+    FILLER_WORDS,
     HOUSE_WORDS,
     LANGS,
     NUMBER_WORDS,
     POSTPOSITIONAL,
     colour_index,
     landmark_index,
+    language_evidence_index,
     language_hint_index,
     non_name_keys,
     polarity_index,
@@ -27,22 +29,9 @@ CERTAIN = 95.0  # at or above this, a short word or a close second place no long
 SHORT_WORD = 4  # a match on one word this short (phonetic-key letters) needs CERTAIN to be confident
 CLOSE_CALL = 4.0  # points between first and second place that count as too close to call
 
-FILLERS = {phonetic_key(w) for w in [
-    # kn
-    "namma", "nimma", "nam", "ide", "ive", "alli", "inda", "ri", "ree", "andre", "anta", "aytu", "ನಮ್ಮ", "ಇದೆ", "ಅಲ್ಲಿ", "ರೀ",
-    # hi
-    "mera", "meri", "hamara", "hamare", "hai", "hain", "ke", "ki", "ka", "wala", "wali", "mein", "se", "ji", "मेरा", "हमारा", "है", "के", "की", "का", "वाला", "में",
-    # ta
-    "enga", "en", "irukku", "iruku", "da", "la", "ta", "எங்க", "இருக்கு",
-    # te
-    "maa", "maadi", "undi", "lo", "మా", "ఉంది",
-    # en
-    "my", "our", "is", "the", "a", "an", "it", "its", "house", "home", "near", "village", "there", "located", "of", "to",
-    "um", "uh", "hmm", "madam", "okay",  # not "sir": it collides with Sira/Shira
-    # "village / our village"
-    "nammuru", "nammooru", "ooru", "uru", "gaon", "gaanv", "gav", "oor", "uuru", "enga ooru",
-    "ನಮ್ಮೂರು", "ಊರು", "ಊರಿನ", "गाँव", "गांव", "ஊர்", "ஊரு", "ఊరు", "ఊరి",
-]} | {phonetic_key(w) for w in HOUSE_WORDS}
+FILLERS = {phonetic_key(w) for words in FILLER_WORDS.values() for w in words} | {
+    phonetic_key(w) for w in ["um", "uh", "hmm", "madam", "okay"]  # not "sir": it collides with Sira/Shira
+} | {phonetic_key(w) for w in HOUSE_WORDS}
 
 
 @dataclass
@@ -88,6 +77,37 @@ def guess_language(text: str, stt_language: str | None = None) -> str:
     if votes:
         return max(votes, key=votes.get)
     return "en-IN"
+
+
+def language_evidence(text: str, village_names: set[str] | frozenset[str] = frozenset()) -> dict[str, int]:
+    """How many words in the text belong to each language. Village names say nothing about the language spoken."""
+    index = language_evidence_index()
+    counts: dict[str, int] = {}
+    for t in tokenize(text):
+        if t.key not in village_names:
+            for lang in index.get(t.key, ()):
+                counts[lang] = counts.get(lang, 0) + 1
+    return counts
+
+
+def language_to_switch_to(current: str, detected: str, evidence: dict[str, int], previous: str | None) -> str | None:
+    """The language to move to, or None to stay. Prisma's tag alone is not enough: it comes from the transcript's script.
+
+    Words beat the tag, so Kannada written in Telugu letters stays Kannada. Without words, the same new
+    language twice in a row is enough, except for two cases where the tag proves little: Kannada and Telugu,
+    which Prisma mixes up on bad lines, and English, because a village name in Latin letters is tagged English.
+    """
+    top = max(evidence.values(), default=0)
+    if top > evidence.get(current, 0):
+        leaders = [lang for lang, n in evidence.items() if n == top]
+        if detected in leaders:
+            return detected
+        native = [lang for lang in leaders if lang != "en-IN"]
+        if len(native) == 1:
+            return native[0]
+    if detected == previous and detected not in (current, "en-IN") and {current, detected} != {"kn-IN", "te-IN"}:
+        return detected
+    return None
 
 
 # ------------------------------------------------------------------ village

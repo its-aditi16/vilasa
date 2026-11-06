@@ -12,6 +12,8 @@ from .extractor import (
     Landmark,
     VillageMatch,
     guess_language,
+    language_evidence,
+    language_to_switch_to,
     match_village,
     parse_house,
     parse_landmark,
@@ -19,6 +21,7 @@ from .extractor import (
     tokenize,
 )
 from .lexicon import LANGS
+from .normalize import phonetic_key
 from .pincodes import PinDirectory
 from .prompts import TOPICS, say
 
@@ -55,6 +58,7 @@ class CallSession:
     house: House | None = None
     house_text: str = ""
     language_switched: bool = False
+    last_detected: str | None = None
 
     def __post_init__(self):
         self.language = self.delivery.get("default_language") or "kn-IN"
@@ -88,15 +92,12 @@ class CallSession:
     def _update_language(self, text: str, stt_language: str | None):
         if not tokenize(text):
             return
-        guess = guess_language(text, stt_language)
-        if guess not in LANGS or guess == self.language:
-            return
-        customer_turns = [t for t in self.turns if t.role == "customer"]
-        # switch on the first answer, or later when the answer is clearly in another script/language
-        clear_switch = stt_language and stt_language == guess and len(tokenize(text)) >= 2
-        kanglish = self.language == "en-IN" and guess != "en-IN"  # 'bus stand hatra' → reply in Kannada
-        if len(customer_turns) <= 1 or clear_switch or kanglish:
-            self.language = guess
+        detected = guess_language(text, stt_language)
+        names = {part for name, _ in self.pins.candidates(self.pin) for part in phonetic_key(name).split()}
+        new = language_to_switch_to(self.language, detected, language_evidence(text, names), self.last_detected)
+        self.last_detected = detected
+        if new in LANGS:
+            self.language = new
             self.language_switched = True
 
     def handle(self, text: str, stt_language: str | None = None, meta: dict | None = None) -> Turn:

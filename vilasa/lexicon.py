@@ -127,8 +127,35 @@ COLOURS: dict[str, list[str]] = {
     "orange": ["kesari", "orange", "ಕೇಸರಿ", "केसरी", "நாரங்கி", "ఆరెంజ్"],
 }
 
-HOUSE_WORDS = ["mane", "ghar", "veedu", "illu", "house", "home", "ಮನೆ", "घर", "வீடு", "ఇల్లు", "ఇంటి"]
-NUMBER_WORDS = ["number", "nambar", "numbar", "no", "sankhye", "ನಂಬರ್", "ಸಂಖ್ಯೆ", "नंबर", "நம்பர்", "எண்", "నంబర్"]
+HOUSE_BY_LANG: dict[str, list[str]] = {
+    "kn-IN": ["mane", "ಮನೆ"],
+    "hi-IN": ["ghar", "घर"],
+    "ta-IN": ["veedu", "veettu", "வீடு", "வீட்டு"],
+    "te-IN": ["illu", "ఇల్లు", "ఇంటి"],
+    "en-IN": ["house", "home"],
+}
+# 'number' is used in every language, so its Latin spellings say nothing about which one is being spoken
+NUMBER_BY_LANG: dict[str, list[str]] = {
+    "kn-IN": ["sankhye", "ನಂಬರ್", "ಸಂಖ್ಯೆ"],
+    "hi-IN": ["नंबर"],
+    "ta-IN": ["நம்பர்", "எண்"],
+    "te-IN": ["నంబర్"],
+}
+HOUSE_WORDS = [w for words in HOUSE_BY_LANG.values() for w in words]
+NUMBER_WORDS = ["number", "nambar", "numbar", "no"] + [w for words in NUMBER_BY_LANG.values() for w in words]
+
+# Words that only carry the sentence along: 'my', 'is', 'our village'. Never part of a village name.
+FILLER_WORDS: dict[str, list[str]] = {
+    "kn-IN": ["namma", "nimma", "nam", "ide", "ive", "alli", "inda", "ri", "ree", "andre", "anta", "aytu", "ನಮ್ಮ", "ಇದೆ", "ಅಲ್ಲಿ", "ರೀ",
+              "nammuru", "nammooru", "ooru", "uru", "ನಮ್ಮೂರು", "ಊರು", "ಊರಿನ"],
+    "hi-IN": ["mera", "meri", "hamara", "hamare", "hai", "hain", "ke", "ki", "ka", "wala", "wali", "mein", "se", "ji",
+              "मेरा", "मेरी", "मैं", "हूँ", "हूं", "रहता", "रहती", "हमारा", "है", "के", "की", "का", "वाला", "में", "gaon", "gaanv", "gav", "गाँव", "गांव"],
+    "ta-IN": ["enga", "engal", "en", "irukku", "iruku", "da", "la", "ta", "எங்க", "எங்கள்", "என்", "இருக்கு",
+              "oor", "ooru", "enga ooru", "ஊர்", "ஊரு"],
+    "te-IN": ["maa", "maadi", "undi", "lo", "మా", "ఉంది", "ooru", "uuru", "ఊరు", "ఊరి"],
+    "en-IN": ["my", "our", "is", "the", "a", "an", "it", "its", "i", "we", "am", "live", "stay", "in", "at",
+              "near", "village", "there", "located", "of", "to"],
+}
 
 YES: dict[str, list[str]] = {
     "kn-IN": ["haudu", "howdu", "houdu", "hau", "hu", "sari", "sariyagide", "ಹೌದು", "ಹೂಂ", "ಸರಿ", "ಸರಿಯಾಗಿದೆ"],
@@ -190,6 +217,18 @@ def non_name_keys() -> frozenset[str]:
     words = [*relation_index(), *landmark_index(), *colour_index(), *polarity_index()]
     words += [phonetic_key(w) for w in HOUSE_WORDS + NUMBER_WORDS]
     return frozenset(part for key in words for part in key.split())
+
+
+@lru_cache(maxsize=1)
+def language_evidence_index() -> dict[str, set[str]]:
+    """Key of a word → the languages it belongs to, whatever script it was written in ('నమ్మూరు' is still 'ನಮ್ಮೂರು')."""
+    idx: dict[str, set[str]] = {}
+    for table in (*RELATIONS.values(), YES, NO, HOUSE_BY_LANG, NUMBER_BY_LANG, FILLER_WORDS):
+        for lang, words in table.items():
+            for w in words:
+                for part in phonetic_key(w).split():
+                    idx.setdefault(part, set()).add(lang)
+    return idx
 
 
 @lru_cache(maxsize=1)

@@ -208,3 +208,66 @@ def test_card_shows_the_runner_up_on_a_close_call_and_the_call_still_confirms():
 
 def test_card_has_no_runner_up_when_the_match_is_clear():
     assert run(DELIVERIES[0]).card()["village_or"] is None
+
+
+def _call(*turns, default="kn-IN", pin="572101"):
+    """Answers as (text, Prisma's detected language). Returns the reply language after each."""
+    s = CallSession({"pin": pin, "default_language": default}, PINS)
+    s.start()
+    return [s.handle(text, detected).language for text, detected in turns]
+
+
+def test_kanglish_in_telugu_script_stays_kannada():
+    u016 = "నమ్మూరు కత్తిగే గొల్లహళ్లి government school, ఎదురు house number 60."
+    assert _call((u016, "te-IN"), pin="572104") == ["kn-IN"]
+
+
+def test_telugu_script_with_no_evidence_stays_kannada_even_twice_in_a_row():
+    assert _call(("తమ్మదిహళ్ళి", "te-IN"), ("రామాలయం", "te-IN"), pin="572226") == ["kn-IN", "kn-IN"]
+
+
+def test_real_telugu_answer_switches_to_telugu():
+    assert _call(("మా ఊరు నాగలమడికె, చెరువు దగ్గర", "te-IN"), pin="572136") == ["te-IN"]
+
+
+def test_telugu_call_does_not_fall_back_to_kannada_on_detection_alone():
+    assert _call(("కేస్తూర్", "kn-IN"), ("రామాలయం", "kn-IN"), default="te-IN", pin="572138") == ["te-IN", "te-IN"]
+
+
+def test_kannada_to_hindi_at_the_landmark_step_with_prisma_tags():
+    turns = [("ನಮ್ಮೂರು Kyathasandra.", "kn-IN"), ("आंजनेय मंदिर के पीछे।", "hi-IN"), ("घर नंबर 23, नीला घर।", "hi-IN"), ("हाँ, सही है।", "hi-IN")]
+    assert _call(*turns) == ["kn-IN", "hi-IN", "hi-IN", "hi-IN"]
+
+
+def test_hindi_from_the_first_turn_with_prisma_tags():
+    turns = [("मैं Hirehalli में रहता हूँ।", "hi-IN"), ("सरकारी school के सामने।", "hi-IN"), ("घर नंबर 7, पीला घर।", "hi-IN"), ("हाँ, सही है।", "hi-IN")]
+    assert _call(*turns, pin="572168") == ["hi-IN"] * 4
+
+
+def test_words_beat_the_tag_when_hindi_comes_back_in_kannada_script():
+    assert _call(("ಮೇರಾ ಗಾಂವ್ Hirehalli, ಕೆ ಸಾಮ್ನೆ", "kn-IN"), pin="572168") == ["hi-IN"]
+
+
+def test_same_new_language_twice_in_a_row_switches_without_words():
+    assert _call(("हिरेहल्ली", "hi-IN"), ("सरकारी स्कूल", "hi-IN"), pin="572168") == ["kn-IN", "hi-IN"]
+
+
+def test_detection_that_changes_between_turns_does_not_switch():
+    assert _call(("हिरेहल्ली", "hi-IN"), ("ஏரி", "ta-IN"), pin="572168") == ["kn-IN", "kn-IN"]
+
+
+def test_village_names_in_latin_letters_do_not_switch_to_english():
+    assert _call(("Kyathasandra", "en-IN"), ("Anjaneya temple", "en-IN")) == ["kn-IN", "kn-IN"]
+
+
+def test_english_answer_switches_to_english():
+    assert _call(("My village is Kyathasandra", "en-IN")) == ["en-IN"]
+
+
+def test_kanglish_typed_in_latin_moves_an_english_call_to_kannada():
+    assert _call(("bus stand hatra", None), default="en-IN") == ["kn-IN"]
+
+
+def test_a_village_name_is_not_evidence_even_if_it_sounds_like_a_direction_word():
+    pin = _pin_of("Thadi")  # same phonetic key as ದಾಟಿ, 'after', in Kannada and Telugu
+    assert _call(("Thadi", "te-IN"), default="hi-IN", pin=pin) == ["hi-IN"]
