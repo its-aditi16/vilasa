@@ -10,7 +10,7 @@ Built on Gnani's **Prisma v3.0** (speech-to-text) and **Timbre v3.0** (text-to-s
 
 | Problem | What Vilasa does |
 |---|---|
-| Speech models misspell village names nobody has heard of | For each PIN, Vilasa sends Prisma up to 200 **keyterms**: village names from the India Post directory for that PIN and nearby PINs, plus landmark words |
+| Speech models misspell village names nobody has heard of | For each PIN, Vilasa sends Prisma up to 200 **keyterms**: village names from the India Post directory for that PIN and nearby PINs, plus landmark words, all in Latin script (native-script keyterms pull the transcript into that script) |
 | People give landmarks, not street names | Direction words in 5 languages (*hatra, ke paas, pakkathula, daggara, near*…) plus landmark nouns are turned into "Behind Anjaneya temple" |
 | The customer may not speak the rider's language | Prisma runs with `indic-auto` language detection. Vilasa greets in the local language, then **switches to the language the customer replies in**: Kannada, Hindi, English, Tamil, Telugu, and Kanglish/Hinglish |
 | Native script vs English spellings (ಕ್ಯಾತಸಂದ್ರ vs Kyathsandra) | Everything is reduced to one phonetic key, so a single fuzzy matcher works across scripts |

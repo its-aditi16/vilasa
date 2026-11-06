@@ -11,6 +11,7 @@ transcript, then score these against ground truth:
 
     python scripts/benchmark.py --dry-run                 # how many calls / seconds of audio
     python scripts/benchmark.py --limit 5                 # quick check
+    python scripts/benchmark.py --per-language 2          # a small sample of every language
     python scripts/benchmark.py                           # full run → benchmark/results/
 
 Results are cached per audio+settings, so re-running costs nothing for finished items.
@@ -24,7 +25,9 @@ import time
 from collections import defaultdict
 
 import _path  # noqa: F401
+from make_benchmark_audio import per_language
 from vilasa.audio import add_noise, phone_quality
+from vilasa.callflow import CallSession
 from vilasa.config import ROOT, settings
 from vilasa.extractor import match_village, parse_landmark, tokenize
 from vilasa.gnani import GnaniError, MockSTT, PrismaSTT, wav_seconds
@@ -65,6 +68,13 @@ def exact_hit(transcript: str, village: str) -> bool:
     toks = [t.key for t in tokenize(transcript)]
     joined = {"".join(toks[i:i + n]) for n in (1, 2, 3) for i in range(len(toks) - n + 1)}
     return key in joined
+
+
+def app_keyterms(row: dict, pins: PinDirectory) -> list[str]:
+    """What the app sends for a caller's first answer, before it knows their language or village."""
+    session = CallSession({"pin": row["pin"]}, pins)
+    session.start()
+    return session.stt_context()["keyterms"]
 
 
 def expected_language(row: dict) -> str:
@@ -175,6 +185,7 @@ svg{{max-width:100%;height:auto}} .lbl{{fill:var(--ink);font-size:13px}} .val{{f
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--limit", type=int, default=0, help="Only the first N utterances")
+    ap.add_argument("--per-language", type=int, default=0, help="Only the first N utterances of each language")
     ap.add_argument("--conditions", nargs="*", default=list(CONDITIONS), choices=list(CONDITIONS))
     ap.add_argument("--keyterms", choices=["both", "on", "off"], default="both")
     ap.add_argument("--dry-run", action="store_true")
@@ -182,6 +193,8 @@ def main():
 
     pins = PinDirectory.load(settings.pin_file)
     rows = list(csv.DictReader((BENCH / "utterances.csv").open(encoding="utf-8")))
+    if args.per_language:
+        rows = per_language(rows, args.per_language)
     if args.limit:
         rows = rows[: args.limit]
     kt_modes = ["off", "on"] if args.keyterms == "both" else [args.keyterms]
@@ -203,7 +216,7 @@ def main():
         for cond in args.conditions:
             audio = variant(r["id"], cond, clean)
             for kt in kt_modes:
-                terms = pins.keyterms(r["pin"], None) if kt == "on" else None
+                terms = app_keyterms(r, pins) if kt == "on" else None
                 try:
                     res = stt.transcribe(audio, filename="a.wav", language_code="indic-auto", keyterms=terms, hint=r["text"])
                 except GnaniError as e:

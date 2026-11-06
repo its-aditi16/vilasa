@@ -5,6 +5,7 @@ in benchmark/recordings/<id>.wav and benchmark.py will use those instead.
 
     python scripts/make_benchmark_audio.py            # only missing files
     python scripts/make_benchmark_audio.py --limit 5  # try a few first
+    python scripts/make_benchmark_audio.py --per-language 2  # a small sample of every language
 """
 
 import argparse
@@ -16,11 +17,25 @@ from vilasa.config import ROOT, settings
 from vilasa.gnani import GnaniError, MockTTS, TimbreTTS, wav_seconds
 
 
+def per_language(rows: list[dict], n: int) -> list[dict]:
+    """The first n utterances of each language."""
+    counts: dict[str, int] = {}
+    out = []
+    for r in rows:
+        counts[r["lang"]] = counts.get(r["lang"], 0) + 1
+        if counts[r["lang"]] <= n:
+            out.append(r)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--per-language", type=int, default=0)
     args = ap.parse_args()
     rows = list(csv.DictReader((ROOT / "benchmark" / "utterances.csv").open(encoding="utf-8")))
+    if args.per_language:
+        rows = per_language(rows, args.per_language)
     if args.limit:
         rows = rows[: args.limit]
     out_dir = ROOT / "benchmark" / "audio"

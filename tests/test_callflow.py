@@ -70,18 +70,18 @@ def test_keyterms_fit_prisma_limit():
 
 
 @pytest.mark.parametrize("language", ["kn-IN", "hi-IN", "ta-IN", "te-IN", "en-IN"])
-def test_keyterms_never_use_another_languages_script(language):
+def test_keyterms_are_latin_script_only(language):
     for pin in PINS.pins:
         terms = PINS.keyterms(pin, language)
         assert len(terms) <= 200
-        assert {detect_language(t) for t in terms} <= {language, "en-IN"}
+        assert all(t.isascii() for t in terms)
 
 
 @pytest.mark.parametrize("language,own,foreign", [
-    ("kn-IN", ["ಗುಡಿ", "gudi", "ಹತ್ರ", "hatra", "temple"], ["mandir", "kovil", "paas", "मंदिर"]),
-    ("hi-IN", ["मंदिर", "mandir", "पास", "paas", "temple"], ["gudi", "kovil", "hatra", "ಗುಡಿ"]),
-    ("ta-IN", ["கோவில்", "kovil", "பக்கத்துல", "pakkathula", "temple"], ["gudi", "hatra", "paas", "ಗುಡಿ"]),
-    ("te-IN", ["గుడి", "gudi", "దగ్గర", "daggara", "temple"], ["mandir", "kovil", "hatra", "ಗುಡಿ"]),
+    ("kn-IN", ["gudi", "hatra", "temple", "near"], ["mandir", "kovil", "paas", "ಗುಡಿ", "ಹತ್ರ"]),
+    ("hi-IN", ["mandir", "paas", "temple", "near"], ["gudi", "kovil", "hatra", "मंदिर", "पास"]),
+    ("ta-IN", ["kovil", "pakkathula", "temple", "near"], ["gudi", "hatra", "paas", "கோவில்", "பக்கத்துல"]),
+    ("te-IN", ["gudi", "daggara", "temple", "near"], ["mandir", "kovil", "hatra", "గుడి", "దగ్గర"]),
 ])
 def test_landmark_keyterms_are_the_callers_own_words(language, own, foreign):
     terms = landmark_keyterms(language)
@@ -96,17 +96,18 @@ def test_landmark_keyterms_without_a_known_language_are_english_labels(language)
 
 def test_direction_words_survive_the_keyterm_limit():
     for pin in PINS.pins:
-        assert {"paas", "पास", "right of", "दाएं"} <= set(PINS.keyterms(pin, "hi-IN"))
+        assert {"paas", "right of", "daayen"} <= set(PINS.keyterms(pin, "hi-IN"))
 
 
-def test_hindi_caller_gets_no_kannada_keyterms_on_a_kannada_delivery():
+def test_keyterms_stay_latin_on_every_turn_of_a_call_that_switches_language():
     d = next(x for x in DELIVERIES if x["default_language"] == "kn-IN")
     s = CallSession(d, PINS)
     s.start()
     assert all(t.isascii() for t in s.stt_context()["keyterms"])  # language still unknown
     s.handle("मेरा गाँव हिरेहल्ली है", "hi-IN")
     assert s.language == "hi-IN"
-    assert {detect_language(t) for t in s.stt_context()["keyterms"]} == {"hi-IN", "en-IN"}
+    terms = s.stt_context()["keyterms"]
+    assert "paas" in terms and all(t.isascii() for t in terms)
 
 
 def _card(landmark, house):
