@@ -101,22 +101,22 @@ def summarise(results: list[dict]) -> dict:
     groups = defaultdict(list)
     for r in results:
         groups[(r["condition"], r["keyterms"])].append(r)
-    table = []
-    for cond in CONDITIONS:
-        for kt in ("off", "on"):
-            g = groups.get((cond, kt))
-            if not g:
-                continue
-            n = len(g)
-            table.append({
-                "condition": cond, "keyterms": kt, "n": n,
-                "village": round(100 * sum(x["village_ok"] for x in g) / n, 1),
-                "exact": round(100 * sum(x["exact_ok"] for x in g) / n, 1),
-                "house": round(100 * sum(x["house_ok"] for x in g) / n, 1),
-                "landmark": round(100 * sum(x["landmark_ok"] for x in g) / n, 1),
-                "language": round(100 * sum(x["language_ok"] for x in g) / n, 1),
-                "latency_s": round(sum(float(x["latency"] or 0) for x in g) / n, 2),
-            })
+
+    def line(condition: str, kt: str, g: list[dict]) -> dict:
+        n = len(g)
+        return {
+            "condition": condition, "keyterms": kt, "n": n,
+            "village": round(100 * sum(x["village_ok"] for x in g) / n, 1),
+            "exact": round(100 * sum(x["exact_ok"] for x in g) / n, 1),
+            "house": round(100 * sum(x["house_ok"] for x in g) / n, 1),
+            "landmark": round(100 * sum(x["landmark_ok"] for x in g) / n, 1),
+            "language": round(100 * sum(x["language_ok"] for x in g) / n, 1),
+            "latency_s": round(sum(float(x["latency"] or 0) for x in g) / n, 2),
+        }
+
+    table = [line(cond, kt, groups[(cond, kt)]) for cond in CONDITIONS for kt in ("off", "on") if (cond, kt) in groups]
+    by_mode = {kt: [r for r in results if r["keyterms"] == kt] for kt in ("off", "on")}
+    overall = [line("All audio", kt, g) for kt, g in by_mode.items() if g]
 
     def by_language(field: str) -> dict:
         by_lang = defaultdict(lambda: defaultdict(list))
@@ -124,7 +124,7 @@ def summarise(results: list[dict]) -> dict:
             by_lang[r["lang"]][r["keyterms"]].append(r[field])
         return {lang: {kt: round(100 * sum(v) / len(v), 1) for kt, v in d.items()} for lang, d in by_lang.items()}
 
-    return {"table": table, "village_by_language": by_language("village_ok"), "language_by_language": by_language("language_ok")}
+    return {"table": table, "overall": overall, "village_by_language": by_language("village_ok"), "language_by_language": by_language("language_ok")}
 
 
 def write_reports(summary: dict, mock: bool):
@@ -134,7 +134,7 @@ def write_reports(summary: dict, mock: bool):
     lines = ["# Vilasa benchmark" + (" (MOCK — not real Prisma results)" if mock else ""), "",
              "| Audio | Keyterms | n | Village (Vilasa) | Village exact in transcript | House no. | Landmark | Language detected | Latency |",
              "|---|---|---|---|---|---|---|---|---|"]
-    for t in summary["table"]:
+    for t in summary["table"] + summary["overall"]:
         lines.append(f"| {t['condition']} | {t['keyterms']} | {t['n']} | {t['village']}% | {t['exact']}% | {t['house']}% | {t['landmark']}% | {t['language']}% | {t['latency_s']}s |")
     for title, key in (("Village accuracy by language", "village_by_language"), ("Language detected correctly, by language", "language_by_language")):
         lines += ["", f"## {title}", "", "| Language | Keyterms off | Keyterms on |", "|---|---|---|"]
@@ -146,40 +146,87 @@ def write_reports(summary: dict, mock: bool):
     print(f"\nReports → {out.relative_to(ROOT)}/summary.md, summary.json, chart.html")
 
 
+CHART_METRICS = (
+    ("village", "Right village picked"),
+    ("exact", "Village spelled right in the transcript"),
+    ("language", "Right language detected"),
+)
+
+
 def chart_html(summary: dict, mock: bool) -> str:
-    rows = {}
+    rows: dict[str, dict] = {}
     for t in summary["table"]:
-        rows.setdefault(t["condition"], {})[t["keyterms"]] = t["village"]
-    w, bar, gap, top = 640, 18, 30, 60
-    h = top + len(rows) * (2 * bar + gap) + 30
-    parts = []
-    y = top
-    for cond, d in rows.items():
-        parts.append(f'<text x="0" y="{y + bar + 4}" class="lbl">{cond}</text>')
-        for i, (kt, cls) in enumerate((("off", "off"), ("on", "on"))):
-            v = d.get(kt)
-            if v is None:
-                continue
-            bw = (w - 200) * v / 100
-            yy = y + i * bar
-            parts.append(f'<rect x="170" y="{yy}" width="{bw:.1f}" height="{bar - 3}" rx="3" class="{cls}"/>')
-            parts.append(f'<text x="{176 + bw:.1f}" y="{yy + bar - 7}" class="val">{v:g}%</text>')
-        y += 2 * bar + gap
-    title = "Right village picked, by phone-line quality" + (" — MOCK" if mock else "")
-    return f"""<!doctype html><html><head><meta charset="utf-8"><title>Vilasa benchmark</title>
+        rows.setdefault(t["condition"], {})[t["keyterms"]] = t
+    overall = {t["keyterms"]: t for t in summary["overall"]}
+    modes = (("off", "Keyterms off"), ("on", "Keyterms on"))
+
+    def panel(metric: str, title: str) -> str:
+        groups = []
+        for cond, d in rows.items():
+            bars = "".join(
+                f'<div class="bar-row" title="{cond}, {name}: {d[kt][metric]:g}% of {d[kt]["n"]} clips">'
+                f'<div class="track"><i class="bar {kt}" style="width:{d[kt][metric]}%"></i></div><b>{d[kt][metric]:g}%</b></div>'
+                for kt, name in modes if kt in d
+            )
+            groups.append(f'<div class="group"><div class="cond">{cond}</div>{bars}</div>')
+        return f'<section class="panel"><h2>{title}</h2>{"".join(groups)}</section>'
+
+    def table_rows(items: list[dict]) -> str:
+        return "".join(
+            f"<tr><td>{t['condition']}</td><td>{t['keyterms']}</td><td>{t['n']}</td>" + "".join(f"<td>{t[m]:g}%</td>" for m, _ in CHART_METRICS) + "</tr>"
+            for t in items
+        )
+
+    head = "".join(f"<th>{title}</th>" for _, title in CHART_METRICS)
+    if "off" in overall and "on" in overall:
+        title = f"Right village picked: {overall['off']['village']:g}% without keyterms, {overall['on']['village']:g}% with them"
+    else:
+        title = "Right village picked, by phone-line quality"
+    if mock:
+        title += " (MOCK, not real Prisma results)"
+    clips = max((t["n"] for t in summary["table"]), default=0)
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vilasa benchmark</title>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Latin:wght@400;500;600;700&family=Anek+Kannada:wght@500&display=swap" rel="stylesheet">
 <style>
-:root{{--bg:#f7f3ea;--ink:#1d1b16;--muted:#5c574b;--off:#c9c1ae;--on:#b3261e}}
-@media (prefers-color-scheme:dark){{:root{{--bg:#15140f;--ink:#f1ece0;--muted:#a9a291;--off:#4a463c;--on:#e5544b}}}}
-body{{background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;margin:24px}}
-svg{{max-width:100%;height:auto}} .lbl{{fill:var(--ink);font-size:13px}} .val{{fill:var(--muted);font-size:12px}}
-.off{{fill:var(--off)}} .on{{fill:var(--on)}} .key{{font-size:13px;fill:var(--muted)}}
-</style></head><body>
-<svg viewBox="0 0 {w} {h}" role="img" aria-label="{title}">
-<text x="0" y="22" style="font-size:18px;font-weight:600;fill:var(--ink)">{title}</text>
-<rect x="0" y="34" width="12" height="12" class="off"/><text x="18" y="45" class="key">Prisma v3.0, no keyterms</text>
-<rect x="200" y="34" width="12" height="12" class="on"/><text x="218" y="45" class="key">Prisma v3.0 + India Post village keyterms</text>
-{''.join(parts)}
-</svg></body></html>"""
+:root{{--bg:#f7f3ea;--card:#fffdf8;--ink:#1d1b16;--muted:#5c574b;--line:#e3dccb;--off:#3a7fc2;--on:#b3261e;color-scheme:light}}
+@media (prefers-color-scheme:dark){{:root{{--bg:#15140f;--card:#1e1c16;--ink:#f1ece0;--muted:#a9a291;--line:#34312a;--off:#4f94d8;--on:#e5544b;color-scheme:dark}}}}
+*{{box-sizing:border-box}}
+body{{margin:0;background:var(--bg);color:var(--ink);font-family:"Anek Latin","Anek Kannada",system-ui,sans-serif;line-height:1.35}}
+main{{max-width:1180px;margin:0 auto;padding:36px 32px}}
+.brand{{font-weight:600;color:var(--muted);margin:0 0 10px}}
+h1{{font-size:clamp(1.5rem,3.1vw,2.4rem);font-weight:600;letter-spacing:-.015em;line-height:1.15;margin:0 0 8px;max-width:30ch}}
+.sub{{color:var(--muted);font-size:1.05rem;margin:0 0 18px;max-width:80ch}}
+.legend{{display:flex;flex-wrap:wrap;gap:6px 22px;margin:0 0 18px;font-size:.98rem}}
+.legend span{{display:inline-flex;align-items:center;gap:8px}}
+.legend i{{width:14px;height:14px;border-radius:0 4px 4px 0}}
+.panels{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}}
+.panel{{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px 8px}}
+h2{{font-size:1.08rem;font-weight:600;margin:0 0 14px;min-height:2.7em}}
+.group{{margin-bottom:16px}}
+.cond{{font-size:.92rem;color:var(--muted);margin-bottom:5px}}
+.bar-row{{display:grid;grid-template-columns:minmax(0,1fr) 62px;align-items:center;gap:8px;margin-bottom:2px}}
+.track{{border-left:1px solid var(--line);height:18px}}
+.bar{{display:block;height:18px;border-radius:0 4px 4px 0}}
+.bar.off,.legend .off{{background:var(--off)}}
+.bar.on,.legend .on{{background:var(--on)}}
+.bar-row b{{font-weight:600;font-size:1rem;font-variant-numeric:tabular-nums;text-align:right}}
+.note{{color:var(--muted);font-size:.92rem;margin:16px 0 0;max-width:95ch}}
+details{{margin-top:14px;font-size:.92rem;color:var(--muted)}}
+summary{{cursor:pointer}}
+.scroll{{overflow-x:auto}}
+table{{border-collapse:collapse;margin-top:10px;width:100%;min-width:560px}}
+th,td{{text-align:left;padding:5px 12px 5px 0;border-bottom:1px solid var(--line);font-weight:400}}
+th{{font-weight:600}}
+@media (max-width:600px){{main{{padding:24px 16px}}}}
+</style></head><body><main>
+<p class="brand">Vilasa · ವಿಳಾಸ · a multilingual voice agent for rural delivery addresses</p>
+<h1>{title}</h1>
+<p class="sub">{clips} clips in Kannada, Kanglish, Hindi, English, Tamil and Telugu, each with a real Tumakuru village name, through Gnani Prisma v3.0.</p>
+<div class="legend"><span><i class="off"></i>Keyterms off</span><span><i class="on"></i>Keyterms on: India Post village names for that PIN</span></div>
+<div class="panels">{"".join(panel(m, t) for m, t in CHART_METRICS)}</div>
+<p class="note">Synthetic voices (Gnani Timbre), not real callers. Phone audio is 8 kHz, 300 to 3400 Hz, with crowd noise mixed in at 10 dB where shown. Scale is 0 to 100% in every panel.</p>
+<details><summary>Show the numbers</summary><div class="scroll"><table><thead><tr><th>Audio</th><th>Keyterms</th><th>Clips</th>{head}</tr></thead><tbody>{table_rows(summary["table"] + summary["overall"])}</tbody></table></div></details>
+</main></body></html>"""
 
 
 def main():
