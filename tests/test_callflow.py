@@ -4,9 +4,10 @@ from pathlib import Path
 import pytest
 
 from vilasa.callflow import DONE, HANDOFF, LANDMARK, VILLAGE, CallSession
+from vilasa.extractor import match_village
 from vilasa.lexicon import LANDMARKS, RELATIONS, landmark_keyterms
 from vilasa.normalize import detect_language
-from vilasa.pincodes import PinDirectory
+from vilasa.pincodes import PinDirectory, PinInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 PINS = PinDirectory.load(ROOT / "data" / "pincodes_tumakuru.json")
@@ -155,3 +156,55 @@ def test_reply_switches_once_the_transcript_turns_hindi_at_the_landmark_step():
     # Call-flow logic only: this hands in clean Hindi text, so it says nothing about what live Prisma writes.
     answers = ["ನಮ್ಮೂರು ಕ್ಯಾತಸಂದ್ರ", "आंजनेय मंदिर के पीछे", "घर नंबर 23, नीला घर", "हाँ सही है"]
     assert _replies(DELIVERIES[0], answers) == ["kn-IN", "hi-IN", "hi-IN", "hi-IN"]
+
+
+@pytest.mark.parametrize("pin,transcript,village", [
+    ("572129", "ನಮ್ಮೂರು ಬದ್ದಗೆರೆ, bus ನಿಲ್ದಾಣ ಹತ್ತಿರ. ನಮ್ಮ ಮನೆ ಮನೆ number 105.", "Vaddagere"),
+    ("572129", "ನಮ್ಮೂರು ಬತ್ತಗೆರೆ, bus ನಿಲ್ದಾಣ ಹತ್ತಿರ. ನಮ್ಮ ಮನೆ, ಮನೆ number 105.", "Vaddagere"),
+    ("572225", "என் ஊர் Sampige. ஏரி எதிரே எங்கள் வீடு, வீட்டு number 76.", "Sampige"),
+    ("572225", "என் ஊர் சம்பிகே ஏரி எதிரே எங்க வீடு, வீட்டு நம்பர் 76.", None),  # was 'Settikere', from 'opposite'
+    ("572138", "రామాలయం గుడి వెనక మా ఇల్లు, ఇంటి number 21.", None),  # Prisma lost the village; was 'Tovinakere'
+])
+def test_real_transcripts_no_longer_match_a_direction_word(pin, transcript, village):
+    assert match_village(transcript, PINS.candidates(pin), own_pin=pin).name == village
+
+
+def _pin_of(name):
+    return next(p for p, info in PINS.pins.items() if name in info.villages)
+
+
+def test_real_village_whose_name_is_also_a_direction_word_still_matches():
+    pin = _pin_of("Thadi")  # same phonetic key as ದಾಟಿ, 'after'
+    m = match_village("Thadi", PINS.candidates(pin), own_pin=pin)
+    assert m.name == "Thadi" and m.confident
+
+
+def test_real_village_with_landmark_words_in_its_name_stays_in_the_running():
+    pin = _pin_of("Samige Road Railway Station")
+    m = match_village("Samige Road Railway Station", PINS.candidates(pin), own_pin=pin)
+    # The matcher compares at most 3 words at a time, so this 4-word name comes second to 'Sampige'.
+    assert m.name == "Sampige" and m.runner_up == "Samige Road Railway Station" and not m.confident
+
+
+def test_village_not_found_asks_again():
+    s = CallSession({"pin": "572138"}, PINS)
+    s.start()
+    reply = s.handle("రామాలయం గుడి వెనక మా ఇల్లు, ఇంటి number 21.", "te-IN")
+    assert s.state == VILLAGE and reply.meta["prompt"] == "retry"
+    assert s.village is None
+
+
+def test_card_shows_the_runner_up_on_a_close_call_and_the_call_still_confirms():
+    pins = PinDirectory({"572137": PinInfo(pin="572137", villages=["Kadavigere", "Kadavigeri"])})
+    s = CallSession({"pin": "572137"}, pins)
+    s.start()
+    for answer in ("Kadavige", "temple near", "house number 5", "yes correct"):
+        s.handle(answer, "en-IN")
+    card = s.card()
+    assert s.state == DONE and card["status"] == "confirmed"
+    assert card["village"] == "Kadavigere" and card["village_or"] == "or Kadavigeri?"
+    assert card["village_confident"] is False
+
+
+def test_card_has_no_runner_up_when_the_match_is_clear():
+    assert run(DELIVERIES[0]).card()["village_or"] is None

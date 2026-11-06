@@ -106,3 +106,52 @@ def test_house_does_not_repeat_the_main_landmark(main, said, expected):
 
 def test_house_keeps_its_landmark_when_no_main_landmark_is_given():
     assert parse_house("gudi hinde number 23").english() == "House no. 23, behind temple"
+
+
+@pytest.mark.parametrize("said,village", [
+    ("ಹತ್ತಿರ", "Huthri"),      # direction word; this one matched at 91%
+    ("hatra", "Hatna"),
+    ("gudi", "Kutir"),         # landmark noun
+    ("ಗುಡಿಯ", "Kutir"),        # landmark noun with a case ending
+    ("kempu", "Kempur"),       # colour
+    ("nambar", "Nambur"),      # number word
+    ("mane", "Manu"),          # house word
+    ("haudu", "Haudur"),       # yes word
+])
+def test_words_that_describe_an_address_are_not_village_names(said, village):
+    assert match_village(said, [(village, "572101")]).name is None
+
+
+@pytest.mark.parametrize("said,village", [
+    ("Sira Gate", "Sira Gate"),
+    ("Kere Palya", "Kere Palya"),        # a village name with a landmark word in it
+    ("Kere Palya hatra", "Kere Palya"),
+])
+def test_words_in_a_real_village_name_are_never_ignored(said, village):
+    cands = [("Sira Gate", "572101"), ("Kere Palya", "572101"), ("Bellavi", "572107")]
+    assert match_village(said, cands).name == village
+
+
+def test_short_word_needs_95_to_be_confident():
+    m = match_village("Tipu", [("Tiptu", "572101")])
+    assert m.name == "Tiptu" and m.accepted and 85 <= m.score < 95
+    assert m.unsure and not m.confident and m.runner_up is None
+    assert match_village("Sira", [("Sira", "572101")]).confident  # short, but exact
+
+
+def test_longer_word_is_confident_at_85():
+    m = match_village("Tiptu", [("Tiptur", "572101")])
+    assert 85 <= m.score < 95 and m.confident
+
+
+def test_close_call_keeps_the_best_and_names_the_runner_up():
+    m = match_village("Kadavige", [("Kadavigere", "572137"), ("Kadavigeri", "572137")])
+    assert m.name == "Kadavigere" and m.runner_up == "Kadavigeri"
+    assert m.accepted and m.unsure and not m.confident
+
+
+def test_clear_winner_has_no_runner_up():
+    m = match_village("Hirehalli", [("Hirehalli", "572140"), ("Hirehalla", "572140")])  # second is close, but best is 95+
+    assert m.score >= 95 and m.runner_up is None and m.confident
+    m = match_village("Tiptu", [("Tiptur", "572101"), ("Gubbi", "572216")])  # under 95, but far ahead
+    assert m.runner_up is None and m.confident

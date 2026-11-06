@@ -15,6 +15,7 @@ from .lexicon import (
     colour_index,
     landmark_index,
     language_hint_index,
+    non_name_keys,
     polarity_index,
     relation_index,
 )
@@ -22,6 +23,9 @@ from .normalize import _ascii_digits, detect_language, phonetic_key, to_latin
 
 ACCEPT = 85.0  # village match accepted
 UNSURE = 72.0  # accepted, but flagged for the read-back
+CERTAIN = 95.0  # at or above this, a short word or a close second place no longer makes a match unsure
+SHORT_WORD = 4  # a match on one word this short (phonetic-key letters) needs CERTAIN to be confident
+CLOSE_CALL = 4.0  # points between first and second place that count as too close to call
 
 FILLERS = {phonetic_key(w) for w in [
     # kn
@@ -96,6 +100,8 @@ class VillageMatch:
     score: float
     heard: str = ""
     alternatives: list[tuple[str, str, float]] = field(default_factory=list)
+    unsure: bool = False  # short word or close call, even if the score is high
+    runner_up: str | None = None  # the other village, when it's a close call
 
     @property
     def accepted(self) -> bool:
@@ -103,7 +109,7 @@ class VillageMatch:
 
     @property
     def confident(self) -> bool:
-        return self.name is not None and self.score >= ACCEPT
+        return self.name is not None and self.score >= ACCEPT and not self.unsure
 
 
 def _skeleton(key: str) -> str:
@@ -118,8 +124,20 @@ def _score(a: str, b: str) -> float:
     return full
 
 
+def _could_name_a_village(key: str, names: set[str]) -> bool:
+    """Words that describe an address can't name a village, unless a real village on the list uses them ('Sira Gate')."""
+    if key.isdigit():
+        return False
+    if key in names:
+        return True
+    if key in FILLERS or key in non_name_keys():
+        return False
+    return not any(form in landmark_index() for form in _inflections(key))  # 'ಗುಡಿಯ' is still 'ಗುಡಿ'
+
+
 def match_village(text: str, candidates: list[tuple[str, str]], own_pin: str | None = None) -> VillageMatch:
-    toks = [t for t in tokenize(text) if t.key not in FILLERS and not t.key.isdigit()]
+    names = {part for name, _ in candidates for part in phonetic_key(name).split()}
+    toks = [t for t in tokenize(text) if _could_name_a_village(t.key, names)]
     if not toks or not candidates:
         return VillageMatch(None, None, 0.0, heard=text.strip())
     grams: list[tuple[str, list[Token]]] = []
@@ -149,7 +167,10 @@ def match_village(text: str, candidates: list[tuple[str, str]], own_pin: str | N
     heard = " ".join(t.orig for t in span) if span else text.strip()
     if best < UNSURE:
         return VillageMatch(None, None, round(best, 1), heard=text.strip(), alternatives=[(name, pin, round(best, 1))] + alts)
-    return VillageMatch(name, pin, round(best, 1), heard=heard, alternatives=alts)
+    second = scored[1] if len(scored) > 1 else None
+    runner_up = second[1] if second and best < CERTAIN and best - second[0] <= CLOSE_CALL else None
+    short_word = len(span) == 1 and len(span[0].key) <= SHORT_WORD and best < CERTAIN
+    return VillageMatch(name, pin, round(best, 1), heard=heard, alternatives=alts, unsure=short_word or bool(runner_up), runner_up=runner_up)
 
 
 # ------------------------------------------------------------------ landmark

@@ -185,6 +185,14 @@ def polarity_index() -> dict[str, tuple[bool, str]]:
 
 
 @lru_cache(maxsize=1)
+def non_name_keys() -> frozenset[str]:
+    """Keys of single words that describe an address but don't name a village: 'hatra', 'bus', 'blue', 'mane', 'haan'."""
+    words = [*relation_index(), *landmark_index(), *colour_index(), *polarity_index()]
+    words += [phonetic_key(w) for w in HOUSE_WORDS + NUMBER_WORDS]
+    return frozenset(part for key in words for part in key.split())
+
+
+@lru_cache(maxsize=1)
 def language_hint_index() -> dict[str, set[str]]:
     """Romanised word key → languages it belongs to (for spotting Kanglish/Hinglish typed in Latin)."""
     idx: dict[str, set[str]] = {}

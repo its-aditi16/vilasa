@@ -211,6 +211,7 @@ class CallSession:
             "village": village_name,
             "village_score": v.score if v else None,
             "village_confident": bool(v and v.confident),
+            "village_or": f"or {v.runner_up}?" if v and v.runner_up else None,
             "pin_on_parcel": self.pin,
             "pin_corrected": matched_pin if matched_pin and matched_pin != self.pin else None,
             "taluk": pin_info.taluk if pin_info else None,
