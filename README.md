@@ -53,7 +53,26 @@ python scripts/smoke_test.py
 
 This makes a Kannada clip and a Hindi clip with Timbre, transcribes both with Prisma (keyterms off and on), and prints what Vilasa extracted. If anything fails, paste the output (it never contains your key).
 
-**4. Run live.** Restart `uvicorn`. The pill at the top now says **LIVE**. Hold the mic button (or the space bar) and speak.
+**4. Run live.** Restart `uvicorn`. The pill at the top now says **LIVE**. See [Demo](#demo) for how to run a call.
+
+## Demo
+
+```bash
+uvicorn vilasa.app:app --reload
+```
+
+Open http://127.0.0.1:8000 in Chrome or Edge. The mic only works on `localhost` or HTTPS.
+
+1. Press **Call with Vilasa** on a failed delivery and allow the microphone. **Hands-free** is on by default.
+2. Vilasa speaks, then listens by itself. Answer when the status line says **Listening…**. It stops about 0.9 s after you finish, so just pause.
+3. Answer in any of the five languages. The chip at the top flashes when Vilasa switches.
+4. When the call ends, the card shows **Address fixed in N seconds · N turns**.
+
+Use headphones if you can, so the mic doesn't pick up Vilasa's voice. There is no interrupting: wait for Vilasa to finish speaking. If nobody speaks for 6 s, Vilasa asks again, and a call with nobody there ends in a hand-off to the rider.
+
+If the mic misbehaves, **Hold to talk** (or the space bar), the text box and **Use the scripted demo answer** all still work. Turn off Hands-free to stop the automatic listening.
+
+The first call in a language makes that language's fixed prompts in the background, and they are cached on disk after that. Do one rehearsal call before recording.
 
 ## India Post data
 
@@ -85,6 +104,36 @@ Results are cached, so a re-run costs nothing for items already done.
 
 Synthetic TTS audio is easier than real people. For stronger evidence, record friends or family **with their consent** saying the lines in `benchmark/utterances.csv`. Save the clips as `benchmark/recordings/<id>.wav`. The benchmark uses them automatically.
 
+## Results
+
+40 synthetic clips (Timbre voices with real Tumakuru village names) in Kannada, Kanglish, Hindi, English, Tamil and Telugu, in 3 audio conditions, keyterms off vs on: 240 Prisma v3.0 calls. Every transcript goes through Vilasa's own matcher.
+
+| Audio | Keyterms | Clips | Right village | Spelled right in transcript | House no. | Landmark | Language tag right |
+|---|---|---|---|---|---|---|---|
+| Clean | off | 40 | 97.5% | 72.5% | 97.5% | 97.5% | 100% |
+| Clean | on | 40 | 100% | 95% | 95% | 97.5% | 92.5% |
+| Phone | off | 40 | 97.5% | 62.5% | 95% | 100% | 100% |
+| Phone | on | 40 | 97.5% | 95% | 92.5% | 97.5% | 87.5% |
+| Phone + crowd 10 dB | off | 40 | 87.5% | 37.5% | 95% | 95% | 100% |
+| Phone + crowd 10 dB | on | 40 | 87.5% | 80% | 95% | 92.5% | 90% |
+| **All audio** | **off** | **120** | **94.2%** | **57.5%** | **95.8%** | **97.5%** | **100%** |
+| **All audio** | **on** | **120** | **95%** | **90%** | **94.2%** | **95.8%** | **90%** |
+
+| Right village, by language | Keyterms off | Keyterms on |
+|---|---|---|
+| Kannada | 41/42 | 41/42 |
+| Kanglish | 16/18 | 14/18 |
+| Hindi | 24/24 | 24/24 |
+| English | 18/18 | 18/18 |
+| Tamil | 6/9 | 9/9 |
+| Telugu | 8/9 | 8/9 |
+
+- **Keyterms mainly fix spelling:** the village name is spelled right in 90% of transcripts instead of 57.5%. The right village only moves from 94.2% to 95%, because Vilasa's fuzzy matcher already recovers most misspellings.
+- **The gain is uneven:** Tamil goes from 6/9 to 9/9, but Kanglish drops from 16/18 to 14/18, and both wrong villages in the run came with keyterms on (the other misses are "not found", which gets a retry). Keyterms also lower Prisma's raw language tag on Kanglish, which is why Vilasa doesn't trust the tag alone.
+- **Reply language:** replaying these transcripts through the call, Vilasa replies in the wrong language on 1 of 240, down from 3 before its language-switch guard.
+
+These are synthetic voices and only a few clips per language (Tamil and Telugu have 3 each), so treat this as a spot check. It has not been tested with real callers. The "on" list is the one the app sends for a caller's first answer. To reproduce: `python scripts/make_benchmark_audio.py`, then `python scripts/benchmark.py --conditions clean phone "phone+crowd 10dB"`.
+
 ## How it works
 
 ```
@@ -109,7 +158,7 @@ customer audio ─► Prisma v3.0 (indic-auto, keyterms = villages for this PIN 
 | `vilasa/app.py` | FastAPI app (`/api/calls`, `/api/calls/{id}/turn`, `/api/speech/...`) |
 | `static/` | Courier dashboard + customer phone (records 16 kHz WAV in the browser, so no ffmpeg needed) |
 
-Tests: `pytest` (60 tests, always in mock mode).
+Tests: `pytest` (157 tests, always in mock mode; the voice-detection tests need `node` and are skipped without it).
 
 ## Before the demo: get it checked
 
@@ -119,7 +168,8 @@ Tests: `pytest` (60 tests, always in mock mode).
 
 ## Limits
 
-- The REST API caps each request at 30 s of audio, so the recorder stops at 28 s. Streaming STT would make it feel more like a real call.
+- The REST API caps each request at 30 s of audio, so hold-to-talk stops at 28 s and hands-free at 15 s. Streaming STT would make it feel more like a real call.
+- Hands-free waits for Vilasa to finish speaking: you can't interrupt it. Its silence detection uses mic level only, so a noisy room can start or hold open a turn.
 - In the demo, a browser "phone" stands in for a real phone call. A real deployment would put this behind telephony (for example SIP, or Gnani's own stack).
 - The Maps link is a search, not a geocode.
 
